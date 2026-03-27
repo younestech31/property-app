@@ -10,6 +10,7 @@
         .card { max-width: 700px; margin: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .result { font-size: 1.5rem; font-weight: bold; color: #198754; }
         .loading { display: none; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 5px; font-size: 0.8rem; overflow-x: auto; }
     </style>
 </head>
 <body>
@@ -61,7 +62,8 @@
                 <input type="number" id="surface" class="form-control" placeholder="Ex: 100" step="any" required>
             </div>
 
-            <button type="submit" class="btn btn-primary w-100">Estimer</button>
+            <button type="submit" class="btn btn-primary w-100 mb-2">Estimer</button>
+            <button type="button" id="debugBtn" class="btn btn-secondary w-100">Afficher les données brutes</button>
         </form>
 
         <div id="result" class="mt-4 text-center" style="display:none;">
@@ -69,6 +71,11 @@
             <div class="result" id="priceRange"></div>
             <div id="unitInfo" class="text-muted"></div>
             <div id="priceNote" class="text-info small"></div>
+        </div>
+
+        <div id="debugResult" class="mt-3" style="display:none;">
+            <h6>Données brutes (JSON)</h6>
+            <pre id="debugContent"></pre>
         </div>
 
         <div id="loading" class="text-center mt-3 loading">
@@ -122,6 +129,7 @@
         document.getElementById('zone').innerHTML = '<option value="">Sélectionnez d\'abord une catégorie</option>';
         document.getElementById('zone').disabled = true;
         document.getElementById('result').style.display = 'none';
+        document.getElementById('debugResult').style.display = 'none';
     }
 
     async function loadCategories() {
@@ -138,6 +146,7 @@
         document.getElementById('zone').innerHTML = '<option value="">Sélectionnez d\'abord une catégorie</option>';
         document.getElementById('zone').disabled = true;
         document.getElementById('result').style.display = 'none';
+        document.getElementById('debugResult').style.display = 'none';
     }
 
     async function loadZones() {
@@ -153,6 +162,42 @@
         select.innerHTML = '<option value="">Sélectionnez la zone</option>' +
             zones.map(z => `<option value="${z}">${z}</option>`).join('');
         document.getElementById('result').style.display = 'none';
+        document.getElementById('debugResult').style.display = 'none';
+    }
+
+    async function fetchDebugData() {
+        const commune = document.getElementById('commune').value;
+        const transactionType = document.getElementById('transactionType').value;
+        const propertyType = document.getElementById('propertyType').value;
+        const category = document.getElementById('category').value;
+        
+        if (!commune || !propertyType || !category) {
+            alert('Veuillez sélectionner une commune, un type et une catégorie.');
+            return;
+        }
+        
+        const loading = document.getElementById('loading');
+        const errorDiv = document.getElementById('error');
+        const debugDiv = document.getElementById('debugResult');
+        loading.style.display = 'block';
+        errorDiv.style.display = 'none';
+        debugDiv.style.display = 'none';
+        
+        try {
+            let url = `/api/debug?commune=${encodeURIComponent(commune)}&transaction_type=${transactionType}&property_type=${encodeURIComponent(propertyType)}&category=${encodeURIComponent(category)}`;
+            const response = await fetch(url);
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.error || 'Erreur');
+            }
+            document.getElementById('debugContent').innerText = JSON.stringify(data, null, 2);
+            debugDiv.style.display = 'block';
+        } catch (err) {
+            errorDiv.innerHTML = err.message;
+            errorDiv.style.display = 'block';
+        } finally {
+            loading.style.display = 'none';
+        }
     }
 
     document.getElementById('estimationForm').addEventListener('submit', async (e) => {
@@ -221,6 +266,7 @@
             loadCommuneDescription();
         }
     });
+    document.getElementById('debugBtn').addEventListener('click', fetchDebugData);
 
     loadCommunes();
 </script>

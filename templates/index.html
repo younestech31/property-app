@@ -13,6 +13,10 @@
         .loading { display: none; }
         pre { background: #f8f9fa; padding: 10px; border-radius: 5px; font-size: 0.8rem; overflow-x: auto; }
         #map { height: 300px; margin-top: 20px; border-radius: 8px; }
+        /* Hide Leaflet attribution */
+        .leaflet-control-attribution {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
@@ -104,35 +108,35 @@
         return str.replace(/_/g, ' ').toUpperCase();
     }
 
-    // Exact coordinates from your data
+    // Updated coordinates (more precise)
     const communeCoords = {
         "Oran_Partie_Est": [35.7067, -0.6120],
         "Oran_Partie_Ouest_et_Sud": [35.6890, -0.6558],
-        "BIR_EL_DJIR": [35.7247, -0.5486],
-        "HASSI_BOUNIF": [35.7055, -0.5113],
-        "HASSI_BENOKBA": [35.7188, -0.4705],
-        "GDYEL": [35.7801, -0.4286],
-        "HASSI_MEFSOUKH": [35.8037, -0.3756],
-        "BENFRAHA": [35.7275, -0.3364],
-        "ARZEW": [35.8562, -0.3164],
-        "SIDI_BENYABKA": [35.7885, -0.3402],
-        "BETHIOUA": [35.8055, -0.2644],
-        "MERS_ELHADJADJ": [35.7725, -0.1557],
-        "AIN_EL_BIA": [35.8038, -0.2882],
-        "AIN_TURCK": [35.7423, -0.7516],
-        "MERS_EL_KEBIR": [35.7314, -0.7136],
-        "BOUSFER": [35.7369, -0.8036],
-        "EL_ANCOR": [35.7303, -0.8542],
-        "ES_SENIA": [35.6447, -0.6273],
-        "SIDI_CHAMI": [35.6586, -0.5565],
-        "EL_KERMA": [35.5992, -0.5995],
-        "BOUTLELIS": [35.5744, -0.9022],
-        "MISSERGHINE": [35.6179, -0.7306],
-        "AIN_EL_KERMA": [35.6806, -0.9567],
-        "OUED_TLELAT": [35.5458, -0.4449],
-        "EL_BRAYA": [35.6074, -0.5218],
-        "BOUFATIS": [35.5583, -0.3551],
-        "TAFRAOUI": [35.5262, -0.5369]
+        "BIR_EL_DJIR": [35.719874, -0.567512],
+        "HASSI_BOUNIF": [35.691281, -0.497962],
+        "HASSI_BENOKBA": [35.72617, -0.46585],
+        "GDYEL": [35.782485, -0.424204],
+        "HASSI_MEFSOUKH": [35.800693, -0.376532],
+        "BENFRAHA": [35.683739, -0.626775],
+        "ARZEW": [35.856348, -0.313678],
+        "SIDI_BENYABKA": [35.829287, -0.393432],
+        "BETHIOUA": [35.805837, -0.267936],
+        "MERS_ELHADJADJ": [35.794885, -0.165213],
+        "AIN_EL_BIA": [35.813327, -0.287125],
+        "AIN_TURCK": [35.746429, -0.771346],
+        "MERS_EL_KEBIR": [35.727722, -0.708545],
+        "BOUSFER": [35.701233, -0.810392],
+        "EL_ANCOR": [35.684852, -0.869958],
+        "ES_SENIA": [35.6501, -0.62418],
+        "SIDI_CHAMI": [35.657994, -0.522015],
+        "EL_KERMA": [35.618681, -0.579845],
+        "BOUTLELIS": [35.57294, -0.899845],
+        "MISSERGHINE": [35.609321, -0.733315],
+        "AIN_EL_KERMA": [35.64345, -0.976543],
+        "OUED_TLELAT": [35.551924, -0.45226],
+        "EL_BRAYA": [35.629146, -0.519191],
+        "BOUFATIS": [35.679141, -0.411768],
+        "TAFRAOUI": [35.444756, -0.554234]
     };
 
     let currentTransaction = 'sale';

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barème immobilier - Oran</title>
+    <title>Barème immobilier - Wilaya d'Oran</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
@@ -18,8 +18,13 @@
 <body>
 <div class="card">
     <div class="card-body">
-        <h3 class="card-title">Estimation immobilière - Wilaya d'Oran</h3>
-        <p class="text-muted">Période biennale 2025-2026</p>
+        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+            <img src="{{ url_for('static', filename='Coat_Arms_Oran.png') }}" alt="Logo" style="max-width: 70px; height: auto;">
+            <div>
+                <h3 class="card-title">Estimation immobilière - Wilaya d'Oran</h3>
+                <p class="text-muted">Période biennale 2025-2026</p>
+            </div>
+        </div>
 
         <div id="map"></div>
         <p class="text-muted small mt-2">Cliquez sur un marqueur pour sélectionner la commune</p>
@@ -94,41 +99,40 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    // Helper: replace underscores with spaces and convert to uppercase
     function formatLabel(str) {
         if (!str) return '';
         return str.replace(/_/g, ' ').toUpperCase();
     }
 
-    // Exact coordinates for all communes
+    // Updated coordinates (more accurate)
     const communeCoords = {
-        "Oran_Partie_Est": [35.7067, -0.6120],
-        "Oran_Partie_Ouest_et_Sud": [35.6890, -0.6558],
-        "BIR_EL_DJIR": [35.7247, -0.5486],
-        "HASSI_BOUNIF": [35.7055, -0.5113],
-        "HASSI_BENOKBA": [35.7188, -0.4705],
-        "GDYEL": [35.7801, -0.4286],
-        "HASSI_MEFSOUKH": [35.8037, -0.3756],
-        "BENFRAHA": [35.7275, -0.3364],
-        "ARZEW": [35.8562, -0.3164],
-        "SIDI_BENYABKA": [35.7885, -0.3402],
-        "BETHIOUA": [35.8055, -0.2644],
-        "MERS_ELHADJADJ": [35.7725, -0.1557],
-        "AIN_EL_BIA": [35.8038, -0.2882],
-        "AIN_TURCK": [35.7423, -0.7516],
-        "MERS_EL_KEBIR": [35.7314, -0.7136],
-        "BOUSFER": [35.7369, -0.8036],
-        "EL_ANCOR": [35.7303, -0.8542],
-        "ES_SENIA": [35.6447, -0.6273],
-        "SIDI_CHAMI": [35.6586, -0.5565],
-        "EL_KERMA": [35.5992, -0.5995],
-        "BOUTLELIS": [35.5744, -0.9022],
-        "MISSERGHINE": [35.6179, -0.7306],
-        "AIN_EL_KERMA": [35.6806, -0.9567],
-        "OUED_TLELAT": [35.5458, -0.4449],
-        "EL_BRAYA": [35.6074, -0.5218],
-        "BOUFATIS": [35.5583, -0.3551],
-        "TAFRAOUI": [35.5262, -0.5369]
+        "Oran_Partie_Est": [35.710, -0.610],
+        "Oran_Partie_Ouest_et_Sud": [35.680, -0.655],
+        "BIR_EL_DJIR": [35.730, -0.540],
+        "HASSI_BOUNIF": [35.650, -0.520],
+        "HASSI_BENOKBA": [35.580, -0.470],
+        "GDYEL": [35.760, -0.460],
+        "HASSI_MEFSOUKH": [35.570, -0.550],
+        "BENFRAHA": [35.575, -0.400],
+        "ARZEW": [35.840, -0.315],
+        "SIDI_BENYABKA": [35.790, -0.380],
+        "BETHIOUA": [35.820, -0.280],
+        "MERS_ELHADJADJ": [35.870, -0.240],
+        "AIN_EL_BIA": [35.800, -0.220],
+        "AIN_TURCK": [35.740, -0.770],
+        "MERS_EL_KEBIR": [35.730, -0.710],
+        "BOUSFER": [35.700, -0.800],
+        "EL_ANCOR": [35.675, -0.825],
+        "ES_SENIA": [35.645, -0.610],
+        "SIDI_CHAMI": [35.660, -0.545],
+        "EL_KERMA": [35.620, -0.590],
+        "BOUTLELIS": [35.540, -0.710],
+        "MISSERGHINE": [35.670, -0.680],
+        "AIN_EL_KERMA": [35.600, -0.500],
+        "OUED_TLELAT": [35.545, -0.465],
+        "EL_BRAYA": [35.570, -0.600],
+        "BOUFATIS": [35.520, -0.545],
+        "TAFRAOUI": [35.540, -0.430]
     };
 
     let currentTransaction = 'sale';
@@ -145,10 +149,8 @@
     async function updateMarkers() {
         for (let key in markers) map.removeLayer(markers[key]);
         markers = {};
-
         const response = await fetch(`/api/communes?transaction_type=${currentTransaction}`);
         const communes = await response.json();
-
         for (let commune of communes) {
             const coords = communeCoords[commune];
             if (coords) {
@@ -176,7 +178,6 @@
         const select = document.getElementById('commune');
         select.innerHTML = '<option value="">Sélectionnez une commune</option>' +
             communes.map(c => `<option value="${c}">${formatLabel(c)}</option>`).join('');
-        // Reset dependent fields
         document.getElementById('propertyType').innerHTML = '<option value="">Sélectionnez d\'abord une commune</option>';
         document.getElementById('propertyType').disabled = true;
         document.getElementById('category').innerHTML = '<option value="">Sélectionnez d\'abord un type</option>';
@@ -186,7 +187,6 @@
         document.getElementById('result').style.display = 'none';
         document.getElementById('debugResult').style.display = 'none';
         document.getElementById('communeDescription').style.display = 'none';
-
         await updateMarkers();
     }
 
@@ -259,19 +259,16 @@
         const commune = document.getElementById('commune').value;
         const propertyType = document.getElementById('propertyType').value;
         const category = document.getElementById('category').value;
-        
         if (!commune || !propertyType || !category) {
             alert('Veuillez sélectionner une commune, un type et une catégorie.');
             return;
         }
-        
         const loading = document.getElementById('loading');
         const errorDiv = document.getElementById('error');
         const debugDiv = document.getElementById('debugResult');
         loading.style.display = 'block';
         errorDiv.style.display = 'none';
         debugDiv.style.display = 'none';
-        
         try {
             let url = `/api/debug?commune=${encodeURIComponent(commune)}&transaction_type=${currentTransaction}&property_type=${encodeURIComponent(propertyType)}&category=${encodeURIComponent(category)}`;
             const response = await fetch(url);
@@ -299,19 +296,16 @@
             zone: document.getElementById('zone').value,
             surface: document.getElementById('surface').value
         };
-
         if (!data.commune || !data.property_type || !data.category || !data.zone || !data.surface) {
             alert('Veuillez remplir tous les champs.');
             return;
         }
-
         const loading = document.getElementById('loading');
         const errorDiv = document.getElementById('error');
         const resultDiv = document.getElementById('result');
         loading.style.display = 'block';
         errorDiv.style.display = 'none';
         resultDiv.style.display = 'none';
-
         try {
             const response = await fetch('/api/price', {
                 method: 'POST',

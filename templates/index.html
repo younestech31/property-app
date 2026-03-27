@@ -105,7 +105,8 @@
         return str.replace(/_/g, ' ').toUpperCase();
     }
 
-    const communeCoords = {
+    // Coordinates for sale commune names (used as base)
+    const baseCoords = {
         "Oran_Partie_Est": [35.7067, -0.6120],
         "Oran_Partie_Ouest_et_Sud": [35.6890, -0.6558],
         "BIR_EL_DJIR": [35.719874, -0.567512],
@@ -134,6 +135,17 @@
         "BOUFATIS": [35.679141, -0.411768],
         "TAFRAOUI": [35.483073, -0.526979]
     };
+
+    // Add aliases for rental commune names that differ
+    const aliasCoords = {
+        "HASSI_BEN_OKBA": baseCoords["HASSI_BENOKBA"],
+        "BENFREHA": baseCoords["BENFRAHA"],
+        "MERS_EL_HADJADJ": baseCoords["MERS_ELHADJADJ"],
+        "SIDI_BENYEBKA": baseCoords["SIDI_BENYABKA"]
+    };
+
+    // Combine base and aliases into one lookup object
+    const communeCoords = { ...baseCoords, ...aliasCoords };
 
     let currentTransaction = 'sale';
     let map;

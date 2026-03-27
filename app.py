@@ -3,7 +3,7 @@ from flask import Flask, render_template, request, jsonify
 
 app = Flask(__name__)
 
-# Load the JSON data once when the app starts
+# Load JSON data
 with open('transactions_oran.json', 'r', encoding='utf-8') as f:
     sale_data = json.load(f)
 
@@ -20,40 +20,36 @@ def get_property_types(commune, transaction_type):
     data = get_data(transaction_type)
     if commune not in data['communes']:
         return []
-    commune_data = data['communes'][commune]['data']
-    return list(commune_data.keys())
+    return list(data['communes'][commune]['data'].keys())
 
 def get_categories(commune, transaction_type, property_type):
     data = get_data(transaction_type)
     if commune not in data['communes']:
         return []
-    commune_data = data['communes'][commune]['data']
-    if property_type not in commune_data:
+    if property_type not in data['communes'][commune]['data']:
         return []
-    return list(commune_data[property_type].keys())
+    return list(data['communes'][commune]['data'][property_type].keys())
 
 def get_zones(commune, transaction_type, property_type, category):
     data = get_data(transaction_type)
     if commune not in data['communes']:
         return []
-    commune_data = data['communes'][commune]['data']
-    if property_type not in commune_data:
+    if property_type not in data['communes'][commune]['data']:
         return []
-    if category not in commune_data[property_type]:
+    if category not in data['communes'][commune]['data'][property_type]:
         return []
-    zones = commune_data[property_type][category]
+    zones = data['communes'][commune]['data'][property_type][category]
     return [z for z in zones if zones[z] is not None and isinstance(zones[z], list) and len(zones[z]) == 2]
 
 def get_price_range(commune, transaction_type, property_type, category, zone):
     data = get_data(transaction_type)
     if commune not in data['communes']:
         return None
-    commune_data = data['communes'][commune]['data']
-    if property_type not in commune_data:
+    if property_type not in data['communes'][commune]['data']:
         return None
-    if category not in commune_data[property_type]:
+    if category not in data['communes'][commune]['data'][property_type]:
         return None
-    zone_data = commune_data[property_type][category].get(zone)
+    zone_data = data['communes'][commune]['data'][property_type][category].get(zone)
     if not zone_data or len(zone_data) != 2:
         return None
     return zone_data[0], zone_data[1]
@@ -163,6 +159,30 @@ def api_price():
         'max_per_unit': max_price,
         'note': note
     })
+
+@app.route('/api/debug')
+def debug():
+    commune = request.args.get('commune')
+    transaction_type = request.args.get('transaction_type', 'sale')
+    property_type = request.args.get('property_type')
+    category = request.args.get('category')
+    
+    data = get_data(transaction_type)
+    if commune not in data['communes']:
+        return jsonify({'error': 'Commune not found'}), 404
+    commune_data = data['communes'][commune]['data']
+    
+    if property_type:
+        if property_type not in commune_data:
+            return jsonify({'error': 'Property type not found'}), 404
+        if category:
+            if category not in commune_data[property_type]:
+                return jsonify({'error': 'Category not found'}), 404
+            return jsonify(commune_data[property_type][category])
+        else:
+            return jsonify(commune_data[property_type])
+    else:
+        return jsonify(commune_data)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)

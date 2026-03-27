@@ -3,7 +3,6 @@ from flask import Flask, render_template, request, jsonify
 
 app = Flask(__name__)
 
-# Load JSON data
 with open('transactions_oran.json', 'r', encoding='utf-8') as f:
     sale_data = json.load(f)
 
@@ -13,8 +12,9 @@ with open('locations_oran.json', 'r', encoding='utf-8') as f:
 def get_data(transaction_type):
     return sale_data if transaction_type == 'sale' else rent_data
 
-def get_communes():
-    return list(sale_data['communes'].keys())
+def get_communes(transaction_type):
+    data = get_data(transaction_type)
+    return list(data['communes'].keys())
 
 def get_property_types(commune, transaction_type):
     data = get_data(transaction_type)
@@ -63,7 +63,8 @@ def index():
 
 @app.route('/api/communes')
 def api_communes():
-    return jsonify(get_communes())
+    transaction_type = request.args.get('transaction_type', 'sale')
+    return jsonify(get_communes(transaction_type))
 
 @app.route('/api/commune_description')
 def api_commune_description():

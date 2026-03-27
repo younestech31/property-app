@@ -88,24 +88,35 @@
 </div>
 
 <script>
+    let currentTransaction = 'sale';
+
     async function loadCommunes() {
-        const response = await fetch('/api/communes');
+        const response = await fetch(`/api/communes?transaction_type=${currentTransaction}`);
         const communes = await response.json();
         const select = document.getElementById('commune');
         select.innerHTML = '<option value="">Sélectionnez une commune</option>' +
             communes.map(c => `<option value="${c}">${c}</option>`).join('');
+        // Reset dependent fields
+        document.getElementById('propertyType').innerHTML = '<option value="">Sélectionnez d\'abord une commune</option>';
+        document.getElementById('propertyType').disabled = true;
+        document.getElementById('category').innerHTML = '<option value="">Sélectionnez d\'abord un type</option>';
+        document.getElementById('category').disabled = true;
+        document.getElementById('zone').innerHTML = '<option value="">Sélectionnez d\'abord une catégorie</option>';
+        document.getElementById('zone').disabled = true;
+        document.getElementById('result').style.display = 'none';
+        document.getElementById('debugResult').style.display = 'none';
+        document.getElementById('communeDescription').style.display = 'none';
     }
 
     async function loadCommuneDescription() {
         const commune = document.getElementById('commune').value;
-        const transactionType = document.getElementById('transactionType').value;
-        const descDiv = document.getElementById('communeDescription');
         if (!commune) {
-            descDiv.style.display = 'none';
+            document.getElementById('communeDescription').style.display = 'none';
             return;
         }
-        const response = await fetch(`/api/commune_description?commune=${encodeURIComponent(commune)}&transaction_type=${transactionType}`);
+        const response = await fetch(`/api/commune_description?commune=${encodeURIComponent(commune)}&transaction_type=${currentTransaction}`);
         const data = await response.json();
+        const descDiv = document.getElementById('communeDescription');
         if (data.description) {
             descDiv.innerHTML = `<small>📌 ${data.description}</small>`;
             descDiv.style.display = 'block';
@@ -116,9 +127,8 @@
 
     async function loadPropertyTypes() {
         const commune = document.getElementById('commune').value;
-        const transactionType = document.getElementById('transactionType').value;
         if (!commune) return;
-        const response = await fetch(`/api/property_types?commune=${encodeURIComponent(commune)}&transaction_type=${transactionType}`);
+        const response = await fetch(`/api/property_types?commune=${encodeURIComponent(commune)}&transaction_type=${currentTransaction}`);
         const types = await response.json();
         const select = document.getElementById('propertyType');
         select.disabled = false;
@@ -134,10 +144,9 @@
 
     async function loadCategories() {
         const commune = document.getElementById('commune').value;
-        const transactionType = document.getElementById('transactionType').value;
         const propertyType = document.getElementById('propertyType').value;
         if (!commune || !propertyType) return;
-        const response = await fetch(`/api/categories?commune=${encodeURIComponent(commune)}&transaction_type=${transactionType}&property_type=${encodeURIComponent(propertyType)}`);
+        const response = await fetch(`/api/categories?commune=${encodeURIComponent(commune)}&transaction_type=${currentTransaction}&property_type=${encodeURIComponent(propertyType)}`);
         const categories = await response.json();
         const select = document.getElementById('category');
         select.disabled = false;
@@ -151,11 +160,10 @@
 
     async function loadZones() {
         const commune = document.getElementById('commune').value;
-        const transactionType = document.getElementById('transactionType').value;
         const propertyType = document.getElementById('propertyType').value;
         const category = document.getElementById('category').value;
         if (!commune || !propertyType || !category) return;
-        const response = await fetch(`/api/zones?commune=${encodeURIComponent(commune)}&transaction_type=${transactionType}&property_type=${encodeURIComponent(propertyType)}&category=${encodeURIComponent(category)}`);
+        const response = await fetch(`/api/zones?commune=${encodeURIComponent(commune)}&transaction_type=${currentTransaction}&property_type=${encodeURIComponent(propertyType)}&category=${encodeURIComponent(category)}`);
         const zones = await response.json();
         const select = document.getElementById('zone');
         select.disabled = false;
@@ -167,7 +175,6 @@
 
     async function fetchDebugData() {
         const commune = document.getElementById('commune').value;
-        const transactionType = document.getElementById('transactionType').value;
         const propertyType = document.getElementById('propertyType').value;
         const category = document.getElementById('category').value;
         
@@ -184,7 +191,7 @@
         debugDiv.style.display = 'none';
         
         try {
-            let url = `/api/debug?commune=${encodeURIComponent(commune)}&transaction_type=${transactionType}&property_type=${encodeURIComponent(propertyType)}&category=${encodeURIComponent(category)}`;
+            let url = `/api/debug?commune=${encodeURIComponent(commune)}&transaction_type=${currentTransaction}&property_type=${encodeURIComponent(propertyType)}&category=${encodeURIComponent(category)}`;
             const response = await fetch(url);
             const data = await response.json();
             if (!response.ok) {
@@ -204,7 +211,7 @@
         e.preventDefault();
         const data = {
             commune: document.getElementById('commune').value,
-            transaction_type: document.getElementById('transactionType').value,
+            transaction_type: currentTransaction,
             property_type: document.getElementById('propertyType').value,
             category: document.getElementById('category').value,
             zone: document.getElementById('zone').value,
@@ -260,14 +267,14 @@
     document.getElementById('category').addEventListener('change', () => {
         loadZones();
     });
-    document.getElementById('transactionType').addEventListener('change', () => {
-        if (document.getElementById('commune').value) {
-            loadPropertyTypes();
-            loadCommuneDescription();
-        }
+    document.getElementById('transactionType').addEventListener('change', async (e) => {
+        currentTransaction = e.target.value;
+        await loadCommunes();  // reload communes for new transaction type
+        // The commune select will be reset; no need to keep previous selection.
     });
     document.getElementById('debugBtn').addEventListener('click', fetchDebugData);
 
+    // Initial load with sale
     loadCommunes();
 </script>
 </body>

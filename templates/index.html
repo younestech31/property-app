@@ -13,10 +13,7 @@
         .loading { display: none; }
         pre { background: #f8f9fa; padding: 10px; border-radius: 5px; font-size: 0.8rem; overflow-x: auto; }
         #map { height: 300px; margin-top: 20px; border-radius: 8px; }
-        /* Hide Leaflet attribution */
-        .leaflet-control-attribution {
-            display: none !important;
-        }
+        .leaflet-control-attribution { display: none !important; }
     </style>
 </head>
 <body>
@@ -108,7 +105,6 @@
         return str.replace(/_/g, ' ').toUpperCase();
     }
 
-    // Updated coordinates (more precise)
     const communeCoords = {
         "Oran_Partie_Est": [35.7067, -0.6120],
         "Oran_Partie_Ouest_et_Sud": [35.6890, -0.6558],
@@ -137,7 +133,7 @@
         "EL_BRAYA": [35.629146, -0.519191],
         "BOUFATIS": [35.679141, -0.411768],
         "TAFRAOUI": [35.483073, -0.526979]
-    
+    };
 
     let currentTransaction = 'sale';
     let map;

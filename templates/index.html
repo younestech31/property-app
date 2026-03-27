@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barème immobilier - Oran</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #f0f2f5; padding: 20px; }
+        .card { max-width: 700px; margin: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .result { font-size: 1.5rem; font-weight: bold; color: #198754; }
+        .loading { display: none; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <div class="card-body">
+        <h3 class="card-title">Estimation immobilière - Wilaya d'Oran</h3>
+        <p class="text-muted">Période biennale 2025-2026</p>
+
+        <form id="estimationForm">
+            <div class="mb-3">
+                <label for="transactionType" class="form-label">Type de transaction</label>
+                <select id="transactionType" class="form-select" required>
+                    <option value="sale">Vente</option>
+                    <option value="rent">Location</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="commune" class="form-label">Commune / Secteur</label>
+                <select id="commune" class="form-select" required>
+                    <option value="">Chargement...</option>
+                </select>
+                <div id="communeDescription" class="mt-2 text-muted" style="font-size:0.9rem; display:none;"></div>
+            </div>
+
+            <div class="mb-3">
+                <label for="propertyType" class="form-label">Type de bien</label>
+                <select id="propertyType" class="form-select" disabled required>
+                    <option value="">Sélectionnez d'abord une commune</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="category" class="form-label">Catégorie / Standing</label>
+                <select id="category" class="form-select" disabled required>
+                    <option value="">Sélectionnez d'abord un type</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="zone" class="form-label">Zone</label>
+                <select id="zone" class="form-select" disabled required>
+                    <option value="">Sélectionnez d'abord une catégorie</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="surface" class="form-label">Surface (m²)</label>
+                <input type="number" id="surface" class="form-control" placeholder="Ex: 100" step="any" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Estimer</button>
+        </form>
+
+        <div id="result" class="mt-4 text-center" style="display:none;">
+            <h5>Estimation</h5>
+            <div class="result" id="priceRange"></div>
+            <div id="unitInfo" class="text-muted"></div>
+            <div id="priceNote" class="text-info small"></div>
+        </div>
+
+        <div id="loading" class="text-center mt-3 loading">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p>Calcul en cours...</p>
+        </div>
+
+        <div id="error" class="alert alert-danger mt-3" style="display:none;"></div>
+    </div>
+</div>
+
+<script>
+    async function loadCommunes() {
+        const response = await fetch('/api/communes');
+        const communes = await response.json();
+        const select = document.getElementById('commune');
+        select.innerHTML = '<option value="">Sélectionnez une commune</option>' +
+            communes.map(c => `<option value="${c}">${c}</option>`).join('');
+    }
+
+    async function loadCommuneDescription() {
+        const commune = document.getElementById('commune').value;
+        const transactionType = document.getElementById('transactionType').value;
+        const descDiv = document.getElementById('communeDescription');
+        if (!commune) {
+            descDiv.style.display = 'none';
+            return;
+        }
+        const response = await fetch(`/api/commune_description?commune=${encodeURIComponent(commune)}&transaction_type=${transactionType}`);
+        const data = await response.json();
+        if (data.description) {
+            descDiv.innerHTML = `<small>📌 ${data.description}</small>`;
+            descDiv.style.display = 'block';
+        } else {
+            descDiv.style.display = 'none';
+        }
+    }
+
+    async function loadPropertyTypes() {
+        const commune = document.getElementById('commune').value;
+        const transactionType = document.getElementById('transactionType').value;
+        if (!commune) return;
+        const response = await fetch(`/api/property_types?commune=${encodeURIComponent(commune)}&transaction_type=${transactionType}`);
+        const types = await response.json();
+        const select = document.getElementById('propertyType');
+        select.disabled = false;
+        select.innerHTML = '<option value="">Sélectionnez le type</option>' +
+            types.map(t => `<option value="${t}">${t}</option>`).join('');
+        document.getElementById('category').innerHTML = '<option value="">Sélectionnez d\'abord un type</option>';
+        document.getElementById('category').disabled = true;
+        document.getElementById('zone').innerHTML = '<option value="">Sélectionnez d\'abord une catégorie</option>';
+        document.getElementById('zone').disabled = true;
+        document.getElementById('result').style.display = 'none';
+    }
+
+    async function loadCategories() {
+        const commune = document.getElementById('commune').value;
+        const transactionType = document.getElementById('transactionType').value;
+        const propertyType = document.getElementById('propertyType').value;
+        if (!commune || !propertyType) return;
+        const response = await fetch(`/api/categories?commune=${encodeURIComponent(commune)}&transaction_type=${transactionType}&property_type=${encodeURIComponent(propertyType)}`);
+        const categories = await response.json();
+        const select = document.getElementById('category');
+        select.disabled = false;
+        select.innerHTML = '<option value="">Sélectionnez la catégorie</option>' +
+            categories.map(c => `<option value="${c}">${c}</option>`).join('');
+        document.getElementById('zone').innerHTML = '<option value="">Sélectionnez d\'abord une catégorie</option>';
+        document.getElementById('zone').disabled = true;
+        document.getElementById('result').style.display = 'none';
+    }
+
+    async function loadZones() {
+        const commune = document.getElementById('commune').value;
+        const transactionType = document.getElementById('transactionType').value;
+        const propertyType = document.getElementById('propertyType').value;
+        const category = document.getElementById('category').value;
+        if (!commune || !propertyType || !category) return;
+        const response = await fetch(`/api/zones?commune=${encodeURIComponent(commune)}&transaction_type=${transactionType}&property_type=${encodeURIComponent(propertyType)}&category=${encodeURIComponent(category)}`);
+        const zones = await response.json();
+        const select = document.getElementById('zone');
+        select.disabled = false;
+        select.innerHTML = '<option value="">Sélectionnez la zone</option>' +
+            zones.map(z => `<option value="${z}">${z}</option>`).join('');
+        document.getElementById('result').style.display = 'none';
+    }
+
+    document.getElementById('estimationForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const data = {
+            commune: document.getElementById('commune').value,
+            transaction_type: document.getElementById('transactionType').value,
+            property_type: document.getElementById('propertyType').value,
+            category: document.getElementById('category').value,
+            zone: document.getElementById('zone').value,
+            surface: document.getElementById('surface').value
+        };
+
+        if (!data.commune || !data.property_type || !data.category || !data.zone || !data.surface) {
+            alert('Veuillez remplir tous les champs.');
+            return;
+        }
+
+        const loading = document.getElementById('loading');
+        const errorDiv = document.getElementById('error');
+        const resultDiv = document.getElementById('result');
+        loading.style.display = 'block';
+        errorDiv.style.display = 'none';
+        resultDiv.style.display = 'none';
+
+        try {
+            const response = await fetch('/api/price', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(result.error || 'Erreur lors du calcul');
+            }
+            document.getElementById('priceRange').innerHTML = `${result.min.toLocaleString()} - ${result.max.toLocaleString()} ${result.unit}`;
+            const unitInfo = document.getElementById('unitInfo');
+            if (result.unit === "DA/mois") {
+                unitInfo.innerHTML = `(Prix unitaire: ${result.min_per_unit} - ${result.max_per_unit} DA/m²/mois)`;
+            } else {
+                unitInfo.innerHTML = `(Prix unitaire: ${result.min_per_unit} - ${result.max_per_unit} ${result.unit_per})`;
+            }
+            document.getElementById('priceNote').innerHTML = result.note ? `<em>${result.note}</em>` : '';
+            resultDiv.style.display = 'block';
+        } catch (err) {
+            errorDiv.innerHTML = err.message;
+            errorDiv.style.display = 'block';
+        } finally {
+            loading.style.display = 'none';
+        }
+    });
+
+    document.getElementById('commune').addEventListener('change', () => {
+        loadPropertyTypes();
+        loadCommuneDescription();
+    });
+    document.getElementById('propertyType').addEventListener('change', () => {
+        loadCategories();
+    });
+    document.getElementById('category').addEventListener('change', () => {
+        loadZones();
+    });
+    document.getElementById('transactionType').addEventListener('change', () => {
+        if (document.getElementById('commune').value) {
+            loadPropertyTypes();
+            loadCommuneDescription();
+        }
+    });
+
+    loadCommunes();
+</script>
+</body>
+</html>

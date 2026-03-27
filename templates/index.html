@@ -5,12 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Barème immobilier - Oran</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         body { background: #f0f2f5; padding: 20px; }
         .card { max-width: 700px; margin: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .result { font-size: 1.5rem; font-weight: bold; color: #198754; }
         .loading { display: none; }
         pre { background: #f8f9fa; padding: 10px; border-radius: 5px; font-size: 0.8rem; overflow-x: auto; }
+        #map { height: 300px; margin-top: 20px; border-radius: 8px; }
     </style>
 </head>
 <body>
@@ -18,6 +20,9 @@
     <div class="card-body">
         <h3 class="card-title">Estimation immobilière - Wilaya d'Oran</h3>
         <p class="text-muted">Période biennale 2025-2026</p>
+
+        <div id="map"></div>
+        <p class="text-muted small mt-2">Cliquez sur un marqueur pour sélectionner la commune</p>
 
         <form id="estimationForm">
             <div class="mb-3">
@@ -87,15 +92,79 @@
     </div>
 </div>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
+    // Helper: replace underscores with spaces and capitalize words
+    function formatLabel(str) {
+        if (!str) return '';
+        return str.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    }
+
+    // Approximate coordinates for communes (add more as needed)
+    const communeCoords = {
+        "Oran_Partie_Est": [35.6969, -0.6330],
+        "Oran_Partie_Ouest_et_Sud": [35.6910, -0.6410],
+        "BIR_EL_DJIR": [35.7200, -0.5450],
+        "HASSI_BOUNIF": [35.6890, -0.5620],
+        "HASSI_BENOKBA": [35.7030, -0.5180],
+        "GDYEL": [35.7150, -0.4850],
+        "HASSI_MEFSOUKH": [35.6730, -0.4400],
+        "BENFRAHA": [35.6910, -0.3710],
+        "ARZEW": [35.8520, -0.3180],
+        "SIDI_BENYABKA": [35.7600, -0.3400],
+        "BETHIOUA": [35.8200, -0.2800],
+        "MERS_ELHADJADJ": [35.9000, -0.2500],
+        "AIN_EL_BIA": [35.6280, -0.5880],
+        "AIN_TURCK": [35.7350, -0.7720],
+        "MERS_EL_KEBIR": [35.7300, -0.7100],
+        "BOUSFER": [35.7000, -0.8150],
+        "EL_ANCOR": [35.6900, -0.8200],
+        "ES_SENIA": [35.6490, -0.6240],
+        "SIDI_CHAMI": [35.6520, -0.5180],
+        "EL_KERMA": [35.6500, -0.4500],
+        "BOUTLELIS": [35.6400, -0.3800]
+    };
+
     let currentTransaction = 'sale';
+    let map;
+    let markers = {};
+
+    function initMap() {
+        map = L.map('map').setView([35.7, -0.6], 10);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+    }
+
+    async function updateMarkers() {
+        for (let key in markers) map.removeLayer(markers[key]);
+        markers = {};
+
+        const response = await fetch(`/api/communes?transaction_type=${currentTransaction}`);
+        const communes = await response.json();
+
+        for (let commune of communes) {
+            const coords = communeCoords[commune];
+            if (coords) {
+                const marker = L.marker(coords).addTo(map);
+                marker.bindPopup(`<b>${formatLabel(commune)}</b>`);
+                marker.on('click', () => {
+                    const select = document.getElementById('commune');
+                    select.value = commune;
+                    const event = new Event('change', { bubbles: true });
+                    select.dispatchEvent(event);
+                });
+                markers[commune] = marker;
+            }
+        }
+    }
 
     async function loadCommunes() {
         const response = await fetch(`/api/communes?transaction_type=${currentTransaction}`);
         const communes = await response.json();
         const select = document.getElementById('commune');
         select.innerHTML = '<option value="">Sélectionnez une commune</option>' +
-            communes.map(c => `<option value="${c}">${c}</option>`).join('');
+            communes.map(c => `<option value="${c}">${formatLabel(c)}</option>`).join('');
         // Reset dependent fields
         document.getElementById('propertyType').innerHTML = '<option value="">Sélectionnez d\'abord une commune</option>';
         document.getElementById('propertyType').disabled = true;
@@ -106,6 +175,8 @@
         document.getElementById('result').style.display = 'none';
         document.getElementById('debugResult').style.display = 'none';
         document.getElementById('communeDescription').style.display = 'none';
+
+        await updateMarkers();
     }
 
     async function loadCommuneDescription() {
@@ -133,7 +204,7 @@
         const select = document.getElementById('propertyType');
         select.disabled = false;
         select.innerHTML = '<option value="">Sélectionnez le type</option>' +
-            types.map(t => `<option value="${t}">${t}</option>`).join('');
+            types.map(t => `<option value="${t}">${formatLabel(t)}</option>`).join('');
         document.getElementById('category').innerHTML = '<option value="">Sélectionnez d\'abord un type</option>';
         document.getElementById('category').disabled = true;
         document.getElementById('zone').innerHTML = '<option value="">Sélectionnez d\'abord une catégorie</option>';
@@ -151,7 +222,7 @@
         const select = document.getElementById('category');
         select.disabled = false;
         select.innerHTML = '<option value="">Sélectionnez la catégorie</option>' +
-            categories.map(c => `<option value="${c}">${c}</option>`).join('');
+            categories.map(c => `<option value="${c}">${formatLabel(c)}</option>`).join('');
         document.getElementById('zone').innerHTML = '<option value="">Sélectionnez d\'abord une catégorie</option>';
         document.getElementById('zone').disabled = true;
         document.getElementById('result').style.display = 'none';
@@ -168,7 +239,7 @@
         const select = document.getElementById('zone');
         select.disabled = false;
         select.innerHTML = '<option value="">Sélectionnez la zone</option>' +
-            zones.map(z => `<option value="${z}">${z}</option>`).join('');
+            zones.map(z => `<option value="${z}">${formatLabel(z)}</option>`).join('');
         document.getElementById('result').style.display = 'none';
         document.getElementById('debugResult').style.display = 'none';
     }
@@ -269,12 +340,11 @@
     });
     document.getElementById('transactionType').addEventListener('change', async (e) => {
         currentTransaction = e.target.value;
-        await loadCommunes();  // reload communes for new transaction type
-        // The commune select will be reset; no need to keep previous selection.
+        await loadCommunes();
     });
     document.getElementById('debugBtn').addEventListener('click', fetchDebugData);
 
-    // Initial load with sale
+    initMap();
     loadCommunes();
 </script>
 </body>

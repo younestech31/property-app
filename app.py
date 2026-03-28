@@ -8,31 +8,32 @@ app = Flask(__name__)
 SALE_DIR = 'static/data/sale'
 RENT_DIR = 'static/data/rent'
 
-# Load all sale and rent data
-sale_data = {}
-rent_data = {}
-
 def load_json_files(directory):
     data_dict = {}
     if not os.path.exists(directory):
         return data_dict
     for filename in os.listdir(directory):
         if filename.endswith('.json'):
-            wilaya_name = os.path.splitext(filename)[0]  # e.g., "Alger"
             filepath = os.path.join(directory, filename)
             try:
                 with open(filepath, 'r', encoding='utf-8') as f:
                     data = json.load(f)
-                data_dict[wilaya_name] = data
+                # Extract a clean wilaya name from the JSON's "wilaya" field
+                raw_wilaya = data.get('wilaya', '')
+                # Remove "Wilaya d'" or "Wilaya de " prefix, keep only the name
+                clean_wilaya = raw_wilaya.replace('Wilaya d\'', '').replace('Wilaya de ', '').replace('Wilaya ', '')
+                # If still empty, fall back to filename without extension
+                if not clean_wilaya:
+                    clean_wilaya = os.path.splitext(filename)[0]
+                # Use the clean name as key
+                data_dict[clean_wilaya] = data
             except Exception as e:
                 print(f"Error loading {filepath}: {e}")
     return data_dict
 
+# Load all sale and rent data
 sale_data = load_json_files(SALE_DIR)
 rent_data = load_json_files(RENT_DIR)
-
-# Also load legacy files if needed (keep for backward compatibility, but we'll ignore)
-# We'll also load coordinates from static/coordinates.json (already existing)
 
 def get_data(wilaya, transaction_type):
     if transaction_type == 'sale':
@@ -104,7 +105,7 @@ def ads_txt():
 
 @app.route('/api/wilayas')
 def api_wilayas():
-    # Return list of wilayas that have at least sale or rent data
+    # Return sorted list of available wilayas (union of sale and rent)
     all_wilayas = set(sale_data.keys()) | set(rent_data.keys())
     return jsonify(sorted(list(all_wilayas)))
 

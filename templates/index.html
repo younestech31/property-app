@@ -176,6 +176,8 @@
         const coordsMap = config.communes;
         const response = await fetch(`/api/communes?wilaya=${currentWilaya}&transaction_type=${currentTransaction}`);
         const communes = await response.json();
+        console.log("Communes received:", communes);
+        if (communes.length === 0) console.warn("No communes found");
 
         for (let commune of communes) {
             const coords = coordsMap[commune];
@@ -225,9 +227,13 @@
 
     // Load communes dropdown when wilaya changes
     async function loadCommunes() {
+        console.log("loadCommunes called for wilaya:", currentWilaya);
+        if (!currentWilaya) return;
         if (!currentWilaya) return;
         const response = await fetch(`/api/communes?wilaya=${currentWilaya}&transaction_type=${currentTransaction}`);
         const communes = await response.json();
+        console.log("Communes received:", communes);
+        if (communes.length === 0) console.warn("No communes found");
         const select = document.getElementById('commune');
         select.disabled = false;
         select.innerHTML = '<option value="">Sélectionnez une commune</option>' +
@@ -390,6 +396,7 @@
     });
 
     document.getElementById('wilaya').addEventListener('change', async (e) => {
+        console.log('Wilaya changed to:', e.target.value);
         currentWilaya = e.target.value;
         if (!currentWilaya) return;
         // Reset form

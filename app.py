@@ -12,12 +12,18 @@ with open('transactions_relizane.json', 'r', encoding='utf-8') as f:
     sale_data_relizane = json.load(f)
 with open('locations_relizane.json', 'r', encoding='utf-8') as f:
     rent_data_relizane = json.load(f)
+with open('transactions_aintemouchent.json', 'r', encoding='utf-8') as f:
+    sale_data_aintemouchent = json.load(f)
+with open('locations_aintemouchent.json', 'r', encoding='utf-8') as f:
+    rent_data_aintemouchent = json.load(f)
 
 def get_data(wilaya, transaction_type):
     if wilaya == 'oran':
         return sale_data_oran if transaction_type == 'sale' else rent_data_oran
-    else:
+    elif wilaya == 'relizane':
         return sale_data_relizane if transaction_type == 'sale' else rent_data_relizane
+    else:
+        return sale_data_aintemouchent if transaction_type == 'sale' else rent_data_aintemouchent
 
 def get_communes(wilaya, transaction_type):
     data = get_data(wilaya, transaction_type)

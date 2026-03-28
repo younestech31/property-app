@@ -1,13 +1,12 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <link rel="manifest" href="/static/manifest.json">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8480373466320244" crossorigin="anonymous"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barème immobilier - Wilaya d'Oran</title>
+    <title>Barème immobilier - Wilaya d'Oran / Relizane</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="manifest" href="/static/manifest.json">
     <style>
         body { background: #f0f2f5; padding: 20px; }
         .card { max-width: 700px; margin: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
@@ -24,14 +23,25 @@
         <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
             <img src="{{ url_for('static', filename='Coat_Arms_Oran.png') }}" alt="Logo" style="max-width: 70px; height: auto;">
             <div>
-                <h3 class="card-title">Estimation immobilière - Wilaya d'Oran</h3>
+                <h3 class="card-title">Estimation immobilière</h3>
                 <p class="text-muted">Période biennale 2025-2026</p>
             </div>
         </div>
 
-        <div id="map"></div>
-        <!-- Google AdSense -->
-        <p class="text-muted small mt-2">Cliquez sur un marqueur pour sélectionner la commune</p>
+        <!-- Wilaya selector -->
+        <div class="mb-3">
+            <label for="wilaya" class="form-label">Wilaya</label>
+            <select id="wilaya" class="form-select" required>
+                <option value="oran">Oran</option>
+                <option value="relizane">Relizane</option>
+            </select>
+        </div>
+
+        <div id="mapContainer">
+            <div id="map"></div>
+            <p class="text-muted small mt-2" id="mapInstruction">Cliquez sur un marqueur pour sélectionner la commune</p>
+        </div>
+        <div id="noMapMessage" style="display:none;" class="alert alert-info">La carte n'est pas disponible pour cette wilaya pour le moment.</div>
 
         <form id="estimationForm">
             <div class="mb-3">
@@ -103,12 +113,13 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
+    // Helper: format label (uppercase)
     function formatLabel(str) {
         if (!str) return '';
         return str.replace(/_/g, ' ').toUpperCase();
     }
 
-    // Coordinates for sale commune names (used as base)
+    // Oran coordinates (for sale commune names)
     const baseCoords = {
         "ORAN_PARTIE_EST": [35.7067, -0.6120],
         "ORAN_PARTIE_OUEST_ET_SUD": [35.6890, -0.6558],
@@ -138,38 +149,51 @@
         "BOUFATIS": [35.679141, -0.411768],
         "TAFRAOUI": [35.483073, -0.526979]
     };
-
-    // Add aliases for rental commune names that differ
     const aliasCoords = {
         "HASSI_BEN_OKBA": baseCoords["HASSI_BENOKBA"],
         "BENFREHA": baseCoords["BENFRAHA"],
         "MERS_EL_HADJADJ": baseCoords["MERS_ELHADJADJ"],
         "SIDI_BENYEBKA": baseCoords["SIDI_BENYABKA"]
     };
-
-    // Combine base and aliases into one lookup object
     const _raw = { ...baseCoords, ...aliasCoords };
-    const communeCoords = {};
-    for (const [k, v] of Object.entries(_raw)) communeCoords[k.toUpperCase()] = v;
+    const oranCoords = {};
+    for (const [k, v] of Object.entries(_raw)) oranCoords[k.toUpperCase()] = v;
 
+    let currentWilaya = 'oran';
     let currentTransaction = 'sale';
     let map;
     let markers = {};
 
     function initMap() {
+        if (map) return;
         map = L.map('map').setView([35.7, -0.6], 10);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
     }
 
+    function showMap(show) {
+        const mapDiv = document.getElementById('mapContainer');
+        const noMapDiv = document.getElementById('noMapMessage');
+        if (show && currentWilaya === 'oran') {
+            mapDiv.style.display = 'block';
+            noMapDiv.style.display = 'none';
+            if (!map) initMap();
+            else map.invalidateSize();
+        } else {
+            mapDiv.style.display = 'none';
+            noMapDiv.style.display = 'block';
+        }
+    }
+
     async function updateMarkers() {
         for (let key in markers) map.removeLayer(markers[key]);
         markers = {};
-        const response = await fetch(`/api/communes?transaction_type=${currentTransaction}`);
+        if (currentWilaya !== 'oran') return;
+        const response = await fetch(`/api/communes?wilaya=${currentWilaya}&transaction_type=${currentTransaction}`);
         const communes = await response.json();
         for (let commune of communes) {
-            const coords = communeCoords[commune.toUpperCase()];
+            const coords = oranCoords[commune.toUpperCase()];
             if (coords) {
                 const marker = L.marker(coords).addTo(map);
                 marker.bindPopup(`
@@ -190,7 +214,7 @@
     }
 
     async function loadCommunes() {
-        const response = await fetch(`/api/communes?transaction_type=${currentTransaction}`);
+        const response = await fetch(`/api/communes?wilaya=${currentWilaya}&transaction_type=${currentTransaction}`);
         const communes = await response.json();
         const select = document.getElementById('commune');
         select.innerHTML = '<option value="">Sélectionnez une commune</option>' +
@@ -213,7 +237,7 @@
             document.getElementById('communeDescription').style.display = 'none';
             return;
         }
-        const response = await fetch(`/api/commune_description?commune=${encodeURIComponent(commune)}&transaction_type=${currentTransaction}`);
+        const response = await fetch(`/api/commune_description?wilaya=${currentWilaya}&transaction_type=${currentTransaction}&commune=${encodeURIComponent(commune)}`);
         const data = await response.json();
         const descDiv = document.getElementById('communeDescription');
         if (data.description) {
@@ -227,7 +251,7 @@
     async function loadPropertyTypes() {
         const commune = document.getElementById('commune').value;
         if (!commune) return;
-        const response = await fetch(`/api/property_types?commune=${encodeURIComponent(commune)}&transaction_type=${currentTransaction}`);
+        const response = await fetch(`/api/property_types?wilaya=${currentWilaya}&transaction_type=${currentTransaction}&commune=${encodeURIComponent(commune)}`);
         const types = await response.json();
         const select = document.getElementById('propertyType');
         select.disabled = false;
@@ -245,7 +269,7 @@
         const commune = document.getElementById('commune').value;
         const propertyType = document.getElementById('propertyType').value;
         if (!commune || !propertyType) return;
-        const response = await fetch(`/api/categories?commune=${encodeURIComponent(commune)}&transaction_type=${currentTransaction}&property_type=${encodeURIComponent(propertyType)}`);
+        const response = await fetch(`/api/categories?wilaya=${currentWilaya}&transaction_type=${currentTransaction}&commune=${encodeURIComponent(commune)}&property_type=${encodeURIComponent(propertyType)}`);
         const categories = await response.json();
         const select = document.getElementById('category');
         select.disabled = false;
@@ -262,7 +286,7 @@
         const propertyType = document.getElementById('propertyType').value;
         const category = document.getElementById('category').value;
         if (!commune || !propertyType || !category) return;
-        const response = await fetch(`/api/zones?commune=${encodeURIComponent(commune)}&transaction_type=${currentTransaction}&property_type=${encodeURIComponent(propertyType)}&category=${encodeURIComponent(category)}`);
+        const response = await fetch(`/api/zones?wilaya=${currentWilaya}&transaction_type=${currentTransaction}&commune=${encodeURIComponent(commune)}&property_type=${encodeURIComponent(propertyType)}&category=${encodeURIComponent(category)}`);
         const zones = await response.json();
         const select = document.getElementById('zone');
         select.disabled = false;
@@ -287,7 +311,7 @@
         errorDiv.style.display = 'none';
         debugDiv.style.display = 'none';
         try {
-            let url = `/api/debug?commune=${encodeURIComponent(commune)}&transaction_type=${currentTransaction}&property_type=${encodeURIComponent(propertyType)}&category=${encodeURIComponent(category)}`;
+            let url = `/api/debug?wilaya=${currentWilaya}&transaction_type=${currentTransaction}&commune=${encodeURIComponent(commune)}&property_type=${encodeURIComponent(propertyType)}&category=${encodeURIComponent(category)}`;
             const response = await fetch(url);
             const data = await response.json();
             if (!response.ok) {
@@ -306,8 +330,9 @@
     document.getElementById('estimationForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const data = {
-            commune: document.getElementById('commune').value,
+            wilaya: currentWilaya,
             transaction_type: currentTransaction,
+            commune: document.getElementById('commune').value,
             property_type: document.getElementById('propertyType').value,
             category: document.getElementById('category').value,
             zone: document.getElementById('zone').value,
@@ -350,12 +375,32 @@
         }
     });
 
+    document.getElementById('wilaya').addEventListener('change', async (e) => {
+        currentWilaya = e.target.value;
+        // Reset form
+        document.getElementById('commune').innerHTML = '<option value="">Chargement...</option>';
+        document.getElementById('propertyType').innerHTML = '<option value="">Sélectionnez d\'abord une commune</option>';
+        document.getElementById('propertyType').disabled = true;
+        document.getElementById('category').innerHTML = '<option value="">Sélectionnez d\'abord un type</option>';
+        document.getElementById('category').disabled = true;
+        document.getElementById('zone').innerHTML = '<option value="">Sélectionnez d\'abord une catégorie</option>';
+        document.getElementById('zone').disabled = true;
+        document.getElementById('result').style.display = 'none';
+        document.getElementById('debugResult').style.display = 'none';
+        document.getElementById('communeDescription').style.display = 'none';
+        showMap(currentWilaya === 'oran');
+        if (currentWilaya === 'oran') {
+            if (map) map.invalidateSize();
+            else initMap();
+        }
+        await loadCommunes();
+    });
     document.getElementById('commune').addEventListener('change', () => {
         loadPropertyTypes();
         loadCommuneDescription();
         const commune = document.getElementById('commune').value;
-        if (commune && communeCoords[commune.toUpperCase()]) {
-            map.setView(communeCoords[commune.toUpperCase()], 12);
+        if (currentWilaya === 'oran' && commune && oranCoords[commune.toUpperCase()]) {
+            map.setView(oranCoords[commune.toUpperCase()], 12);
         }
     });
     document.getElementById('propertyType').addEventListener('change', () => {
@@ -370,17 +415,18 @@
     });
     document.getElementById('debugBtn').addEventListener('click', fetchDebugData);
 
+    // Initial load
+    showMap(true);
     initMap();
     loadCommunes();
 </script>
-
-    <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/static/service-worker.js')
-                .then(reg => console.log('Service Worker registered'))
-                .catch(err => console.error('Service Worker registration failed:', err));
-        }
-    </script>
-    
+<script>
+    // Service worker registration (PWA)
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/static/service-worker.js')
+            .then(reg => console.log('Service Worker registered'))
+            .catch(err => console.error('Service Worker registration failed:', err));
+    }
+</script>
 </body>
 </html>

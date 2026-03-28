@@ -1,0 +1,23 @@
+{
+  "name": "Barème immobilier Oran",
+  "short_name": "Immobilier Oran",
+  "description": "Estimation des prix de vente et location immobilière dans la wilaya d'Oran",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#198754",
+  "background_color": "#f0f2f5",
+  "icons": [
+    {
+      "src": "/static/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

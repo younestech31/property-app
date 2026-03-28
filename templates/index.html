@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+    <link rel="manifest" href="/static/manifest.json">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8480373466320244" crossorigin="anonymous"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -372,5 +373,14 @@
     initMap();
     loadCommunes();
 </script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/static/service-worker.js')
+                .then(reg => console.log('Service Worker registered'))
+                .catch(err => console.error('Service Worker registration failed:', err));
+        }
+    </script>
+    
 </body>
 </html>

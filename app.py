@@ -1,5 +1,5 @@
 import json
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_from_directory
 
 app = Flask(__name__)
 
@@ -184,6 +184,11 @@ def debug():
             return jsonify(commune_data[property_type])
     else:
         return jsonify(commune_data)
+
+
+@app.route('/ads.txt')
+def ads_txt():
+    return send_from_directory('.', 'ads.txt', mimetype='text/plain')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)

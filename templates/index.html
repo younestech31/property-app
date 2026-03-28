@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barème immobilier - Oran, Relizane, Ain Temouchent</title>
+    <title>Barème immobilier - Toutes les wilayas</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="manifest" href="/static/manifest.json">
@@ -32,9 +32,7 @@
         <div class="mb-3">
             <label for="wilaya" class="form-label">Wilaya</label>
             <select id="wilaya" class="form-select" required>
-                <option value="oran">Oran</option>
-                <option value="relizane">Relizane</option>
-                <option value="aintemouchent">Ain Temouchent</option>
+                <option value="">Chargement...</option>
             </select>
         </div>
 
@@ -56,7 +54,7 @@
             <div class="mb-3">
                 <label for="commune" class="form-label">Commune / Secteur</label>
                 <select id="commune" class="form-select" required>
-                    <option value="">Chargement...</option>
+                    <option value="">Sélectionnez d'abord une wilaya</option>
                 </select>
                 <div id="communeDescription" class="mt-2 text-muted" style="font-size:0.9rem; display:none;"></div>
             </div>
@@ -121,7 +119,7 @@
     }
 
     let coordinatesData = null;
-    let currentWilaya = 'oran';
+    let currentWilaya = null;
     let currentTransaction = 'sale';
     let map;
     let markers = {};
@@ -136,7 +134,12 @@
     function setMapVisibility() {
         const mapContainer = document.getElementById('mapContainer');
         const noMapMessage = document.getElementById('noMapMessage');
-        if (!coordinatesData) return;
+        if (!coordinatesData || !currentWilaya) {
+            mapContainer.style.display = 'none';
+            noMapMessage.style.display = 'block';
+            noMapMessage.innerText = 'Carte non disponible pour cette wilaya pour le moment.';
+            return false;
+        }
         const config = coordinatesData[currentWilaya];
         if (config && Object.keys(config.communes).length > 0) {
             mapContainer.style.display = 'block';
@@ -145,6 +148,7 @@
         } else {
             mapContainer.style.display = 'none';
             noMapMessage.style.display = 'block';
+            noMapMessage.innerText = 'Carte non disponible pour cette wilaya pour le moment.';
             return false;
         }
     }
@@ -152,6 +156,7 @@
     // Initialize map only if coordinates exist
     function initMap() {
         if (map) return;
+        if (!coordinatesData || !currentWilaya) return;
         const config = coordinatesData[currentWilaya];
         if (!config || Object.keys(config.communes).length === 0) return;
         map = L.map('map').setView(config.center, config.zoom);
@@ -195,11 +200,36 @@
         }
     }
 
-    // Load communes dropdown
+    // Load wilayas dropdown
+    async function loadWilayas() {
+        const response = await fetch('/api/wilayas');
+        const wilayas = await response.json();
+        const select = document.getElementById('wilaya');
+        select.innerHTML = '<option value="">Sélectionnez une wilaya</option>' +
+            wilayas.map(w => `<option value="${w}">${formatLabel(w)}</option>`).join('');
+        // Clear other fields
+        document.getElementById('commune').innerHTML = '<option value="">Sélectionnez d\'abord une wilaya</option>';
+        document.getElementById('commune').disabled = true;
+        document.getElementById('propertyType').innerHTML = '<option value="">Sélectionnez d\'abord une commune</option>';
+        document.getElementById('propertyType').disabled = true;
+        document.getElementById('category').innerHTML = '<option value="">Sélectionnez d\'abord un type</option>';
+        document.getElementById('category').disabled = true;
+        document.getElementById('zone').innerHTML = '<option value="">Sélectionnez d\'abord une catégorie</option>';
+        document.getElementById('zone').disabled = true;
+        document.getElementById('result').style.display = 'none';
+        document.getElementById('debugResult').style.display = 'none';
+        document.getElementById('communeDescription').style.display = 'none';
+        // Hide map initially
+        setMapVisibility();
+    }
+
+    // Load communes dropdown when wilaya changes
     async function loadCommunes() {
+        if (!currentWilaya) return;
         const response = await fetch(`/api/communes?wilaya=${currentWilaya}&transaction_type=${currentTransaction}`);
         const communes = await response.json();
         const select = document.getElementById('commune');
+        select.disabled = false;
         select.innerHTML = '<option value="">Sélectionnez une commune</option>' +
             communes.map(c => `<option value="${c}">${formatLabel(c)}</option>`).join('');
         // Reset dependent fields
@@ -322,7 +352,7 @@
             zone: document.getElementById('zone').value,
             surface: document.getElementById('surface').value
         };
-        if (!data.commune || !data.property_type || !data.category || !data.zone || !data.surface) {
+        if (!data.wilaya || !data.commune || !data.property_type || !data.category || !data.zone || !data.surface) {
             alert('Veuillez remplir tous les champs.');
             return;
         }
@@ -361,8 +391,10 @@
 
     document.getElementById('wilaya').addEventListener('change', async (e) => {
         currentWilaya = e.target.value;
+        if (!currentWilaya) return;
         // Reset form
         document.getElementById('commune').innerHTML = '<option value="">Chargement...</option>';
+        document.getElementById('commune').disabled = true;
         document.getElementById('propertyType').innerHTML = '<option value="">Sélectionnez d\'abord une commune</option>';
         document.getElementById('propertyType').disabled = true;
         document.getElementById('category').innerHTML = '<option value="">Sélectionnez d\'abord un type</option>';
@@ -375,7 +407,6 @@
         // Adjust map visibility
         const hasMap = setMapVisibility();
         if (hasMap) {
-            // Reinitialize map if needed
             if (map) {
                 const config = coordinatesData[currentWilaya];
                 if (config) {
@@ -385,9 +416,7 @@
             } else {
                 initMap();
             }
-            await updateMarkers();
         }
-        // Reload communes even if no map
         await loadCommunes();
     });
 
@@ -407,15 +436,15 @@
     });
     document.getElementById('transactionType').addEventListener('change', async (e) => {
         currentTransaction = e.target.value;
-        await loadCommunes();
+        if (currentWilaya) {
+            await loadCommunes();
+        }
     });
     document.getElementById('debugBtn').addEventListener('click', fetchDebugData);
 
     // Initial load
     loadCoordinates().then(() => {
-        setMapVisibility();
-        initMap();
-        loadCommunes();
+        loadWilayas();
     });
 </script>
 <script>

@@ -1,43 +1,60 @@
 import json
+import os
 from flask import Flask, render_template, request, jsonify, send_from_directory
 
 app = Flask(__name__)
 
-# Load data for each wilaya
-with open('transactions_oran.json', 'r', encoding='utf-8') as f:
-    sale_data_oran = json.load(f)
-with open('locations_oran.json', 'r', encoding='utf-8') as f:
-    rent_data_oran = json.load(f)
-with open('transactions_relizane.json', 'r', encoding='utf-8') as f:
-    sale_data_relizane = json.load(f)
-with open('locations_relizane.json', 'r', encoding='utf-8') as f:
-    rent_data_relizane = json.load(f)
-with open('transactions_aintemouchent.json', 'r', encoding='utf-8') as f:
-    sale_data_aintemouchent = json.load(f)
-with open('locations_aintemouchent.json', 'r', encoding='utf-8') as f:
-    rent_data_aintemouchent = json.load(f)
+# Paths to data
+SALE_DIR = 'static/data/sale'
+RENT_DIR = 'static/data/rent'
+
+# Load all sale and rent data
+sale_data = {}
+rent_data = {}
+
+def load_json_files(directory):
+    data_dict = {}
+    if not os.path.exists(directory):
+        return data_dict
+    for filename in os.listdir(directory):
+        if filename.endswith('.json'):
+            wilaya_name = os.path.splitext(filename)[0]  # e.g., "Alger"
+            filepath = os.path.join(directory, filename)
+            try:
+                with open(filepath, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                data_dict[wilaya_name] = data
+            except Exception as e:
+                print(f"Error loading {filepath}: {e}")
+    return data_dict
+
+sale_data = load_json_files(SALE_DIR)
+rent_data = load_json_files(RENT_DIR)
+
+# Also load legacy files if needed (keep for backward compatibility, but we'll ignore)
+# We'll also load coordinates from static/coordinates.json (already existing)
 
 def get_data(wilaya, transaction_type):
-    if wilaya == 'oran':
-        return sale_data_oran if transaction_type == 'sale' else rent_data_oran
-    elif wilaya == 'relizane':
-        return sale_data_relizane if transaction_type == 'sale' else rent_data_relizane
+    if transaction_type == 'sale':
+        return sale_data.get(wilaya)
     else:
-        return sale_data_aintemouchent if transaction_type == 'sale' else rent_data_aintemouchent
+        return rent_data.get(wilaya)
 
 def get_communes(wilaya, transaction_type):
     data = get_data(wilaya, transaction_type)
+    if not data:
+        return []
     return list(data['communes'].keys())
 
 def get_property_types(wilaya, transaction_type, commune):
     data = get_data(wilaya, transaction_type)
-    if commune not in data['communes']:
+    if not data or commune not in data['communes']:
         return []
     return list(data['communes'][commune]['data'].keys())
 
 def get_categories(wilaya, transaction_type, commune, property_type):
     data = get_data(wilaya, transaction_type)
-    if commune not in data['communes']:
+    if not data or commune not in data['communes']:
         return []
     if property_type not in data['communes'][commune]['data']:
         return []
@@ -45,7 +62,7 @@ def get_categories(wilaya, transaction_type, commune, property_type):
 
 def get_zones(wilaya, transaction_type, commune, property_type, category):
     data = get_data(wilaya, transaction_type)
-    if commune not in data['communes']:
+    if not data or commune not in data['communes']:
         return []
     if property_type not in data['communes'][commune]['data']:
         return []
@@ -56,7 +73,7 @@ def get_zones(wilaya, transaction_type, commune, property_type, category):
 
 def get_price_range(wilaya, transaction_type, commune, property_type, category, zone):
     data = get_data(wilaya, transaction_type)
-    if commune not in data['communes']:
+    if not data or commune not in data['communes']:
         return None
     if property_type not in data['communes'][commune]['data']:
         return None
@@ -72,10 +89,11 @@ def is_agricultural(property_type):
 
 def get_commune_description(wilaya, transaction_type, commune):
     data = get_data(wilaya, transaction_type)
-    if commune not in data['communes']:
+    if not data or commune not in data['communes']:
         return ''
     return data['communes'][commune].get('description', '')
 
+# Endpoints
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -84,51 +102,60 @@ def index():
 def ads_txt():
     return send_from_directory('.', 'ads.txt', mimetype='text/plain')
 
+@app.route('/api/wilayas')
+def api_wilayas():
+    # Return list of wilayas that have at least sale or rent data
+    all_wilayas = set(sale_data.keys()) | set(rent_data.keys())
+    return jsonify(sorted(list(all_wilayas)))
+
 @app.route('/api/communes')
 def api_communes():
-    wilaya = request.args.get('wilaya', 'oran')
+    wilaya = request.args.get('wilaya')
     transaction_type = request.args.get('transaction_type', 'sale')
-    return jsonify(get_communes(wilaya, transaction_type))
+    if not wilaya or wilaya not in get_data(wilaya, transaction_type):
+        return jsonify([])
+    communes = get_communes(wilaya, transaction_type)
+    return jsonify(communes)
 
 @app.route('/api/commune_description')
 def api_commune_description():
-    wilaya = request.args.get('wilaya', 'oran')
+    wilaya = request.args.get('wilaya')
     transaction_type = request.args.get('transaction_type', 'sale')
     commune = request.args.get('commune')
-    if not commune:
+    if not wilaya or not commune:
         return jsonify({'description': ''})
     desc = get_commune_description(wilaya, transaction_type, commune)
     return jsonify({'description': desc})
 
 @app.route('/api/property_types')
 def api_property_types():
-    wilaya = request.args.get('wilaya', 'oran')
+    wilaya = request.args.get('wilaya')
     transaction_type = request.args.get('transaction_type', 'sale')
     commune = request.args.get('commune')
-    if not commune:
+    if not wilaya or not commune:
         return jsonify([])
     types = get_property_types(wilaya, transaction_type, commune)
     return jsonify(types)
 
 @app.route('/api/categories')
 def api_categories():
-    wilaya = request.args.get('wilaya', 'oran')
+    wilaya = request.args.get('wilaya')
     transaction_type = request.args.get('transaction_type', 'sale')
     commune = request.args.get('commune')
     property_type = request.args.get('property_type')
-    if not commune or not property_type:
+    if not wilaya or not commune or not property_type:
         return jsonify([])
     categories = get_categories(wilaya, transaction_type, commune, property_type)
     return jsonify(categories)
 
 @app.route('/api/zones')
 def api_zones():
-    wilaya = request.args.get('wilaya', 'oran')
+    wilaya = request.args.get('wilaya')
     transaction_type = request.args.get('transaction_type', 'sale')
     commune = request.args.get('commune')
     property_type = request.args.get('property_type')
     category = request.args.get('category')
-    if not all([commune, property_type, category]):
+    if not wilaya or not commune or not property_type or not category:
         return jsonify([])
     zones = get_zones(wilaya, transaction_type, commune, property_type, category)
     return jsonify(zones)
@@ -136,7 +163,7 @@ def api_zones():
 @app.route('/api/price', methods=['POST'])
 def api_price():
     data = request.get_json()
-    wilaya = data.get('wilaya', 'oran')
+    wilaya = data.get('wilaya')
     transaction_type = data.get('transaction_type', 'sale')
     commune = data.get('commune')
     property_type = data.get('property_type')
@@ -144,7 +171,7 @@ def api_price():
     zone = data.get('zone')
     surface = data.get('surface')
 
-    if not all([commune, property_type, category, zone, surface]):
+    if not all([wilaya, commune, property_type, category, zone, surface]):
         return jsonify({'error': 'Missing parameters'}), 400
 
     try:
@@ -189,14 +216,14 @@ def api_price():
 
 @app.route('/api/debug')
 def debug():
-    wilaya = request.args.get('wilaya', 'oran')
+    wilaya = request.args.get('wilaya')
     transaction_type = request.args.get('transaction_type', 'sale')
     commune = request.args.get('commune')
     property_type = request.args.get('property_type')
     category = request.args.get('category')
     
     data = get_data(wilaya, transaction_type)
-    if commune not in data['communes']:
+    if not data or commune not in data['communes']:
         return jsonify({'error': 'Commune not found'}), 404
     commune_data = data['communes'][commune]['data']
     

@@ -1,0 +1,1017 @@
+{
+  "title": "Termes de références relatifs aux transactions d'immeubles - Location",
+  "period": "Période biennale 2025-2026",
+  "wilaya": "IN_SALAH",
+  "type": "Location",
+  "units_note": "(*) Prix en Dinar Algérien par Mètre Carré (DA/M²). (**) Prix en Dinar Algérien par Hectare (DA/Ha).",
+  "communes": {
+    "In_salah_Zone_résidentielle_Centre_ville_Zone_périphérique_Zone_d'eloignement_Nature_de_l’Immeuble_Type_d’Immeuble_/Caractéristiques": {
+      "description": "",
+      "data": {
+        "Individuels*": {
+          "Standing": {
+            "zone_residentielle": null,
+            "centre_ville": [
+              219,
+              252
+            ],
+            "zone_peripherique": [
+              187,
+              215
+            ],
+            "zone_eloignement": [
+              159,
+              183
+            ]
+          },
+          "Amélioré": {
+            "zone_residentielle": null,
+            "centre_ville": [
+              183,
+              219
+            ],
+            "zone_peripherique": [
+              156,
+              187
+            ],
+            "zone_eloignement": [
+              133,
+              159
+            ]
+          },
+          "Economique": {
+            "zone_residentielle": null,
+            "centre_ville": [
+              165,
+              191
+            ],
+            "zone_peripherique": [
+              141,
+              163
+            ],
+            "zone_eloignement": [
+              120,
+              139
+            ]
+          },
+          "Précaire": {
+            "zone_residentielle": null,
+            "centre_ville": [
+              143,
+              165
+            ],
+            "zone_peripherique": [
+              122,
+              141
+            ],
+            "zone_eloignement": [
+              104,
+              120
+            ]
+          }
+        },
+        "Collectifs_et_Semi-_Collectifs*": {
+          "Standing": {
+            "zone_residentielle": null,
+            "centre_ville": [
+              191,
+              219
+            ],
+            "zone_peripherique": [
+              163,
+              187
+            ],
+            "zone_eloignement": [
+              139,
+              159
+            ]
+          },
+          "Amélioré": {
+            "zone_residentielle": null,
+            "centre_ville": [
+              165,
+              191
+            ],
+            "zone_peripherique": [
+              141,
+              163
+            ],
+            "zone_eloignement": [
+              120,
+              139
+            ]
+          },
+          "Economique": {
+            "zone_residentielle": null,
+            "centre_ville": [
+              143,
+              165
+            ],
+            "zone_peripherique": [
+              122,
+              141
+            ],
+            "zone_eloignement": [
+              104,
+              120
+            ]
+          },
+          "Précaire": {
+            "zone_residentielle": null,
+            "centre_ville": [
+              125,
+              143
+            ],
+            "zone_peripherique": [
+              107,
+              122
+            ],
+            "zone_eloignement": [
+              91,
+              104
+            ]
+          }
+        },
+        "Locaux_Commerciaux_*": {
+          "Artère_hautement_commerciale": {
+            "zone_residentielle": null,
+            "centre_ville": [
+              215,
+              240
+            ],
+            "zone_peripherique": [
+              190,
+              215
+            ],
+            "zone_eloignement": [
+              165,
+              190
+            ]
+          },
+          "Artère_moyennement_commerciale": {
+            "zone_residentielle": null,
+            "centre_ville": [
+              180,
+              200
+            ],
+            "zone_peripherique": [
+              160,
+              180
+            ],
+            "zone_eloignement": [
+              140,
+              160
+            ]
+          },
+          "Artère_peu_commerciale": {
+            "zone_residentielle": null,
+            "centre_ville": [
+              105,
+              120
+            ],
+            "zone_peripherique": [
+              90,
+              105
+            ],
+            "zone_eloignement": [
+              75,
+              90
+            ]
+          }
+        },
+        "locaux_à_usage_professionnels*": {
+          "Artere_principale": {
+            "zone_residentielle": null,
+            "centre_ville": [
+              180,
+              200
+            ],
+            "zone_peripherique": [
+              160,
+              180
+            ],
+            "zone_eloignement": [
+              140,
+              160
+            ]
+          },
+          "Artere_secondaire": {
+            "zone_residentielle": null,
+            "centre_ville": [
+              105,
+              120
+            ],
+            "zone_peripherique": [
+              90,
+              105
+            ],
+            "zone_eloignement": [
+              75,
+              90
+            ]
+          }
+        },
+        "Hangars*": {
+          "En_zone_urbaine": {
+            "zone_residentielle": null,
+            "centre_ville": null,
+            "zone_peripherique": null,
+            "zone_eloignement": null
+          },
+          "En_zone_rurale": {
+            "zone_residentielle": null,
+            "centre_ville": null,
+            "zone_peripherique": null,
+            "zone_eloignement": null
+          }
+        },
+        "Terrains_Nus*": {
+          "Pleine_propriété_deux_02_facades_avec_raccordements": {
+            "zone_residentielle": null,
+            "centre_ville": [
+              65,
+              100
+            ],
+            "zone_peripherique": [
+              56,
+              85
+            ],
+            "zone_eloignement": [
+              48,
+              73
+            ]
+          },
+          "Pleine_propriété_une_01_facade_avec_raccordements": {
+            "zone_residentielle": null,
+            "centre_ville": [
+              55,
+              90
+            ],
+            "zone_peripherique": [
+              46,
+              73
+            ],
+            "zone_eloignement": [
+              41,
+              62
+            ]
+          },
+          "Pleine_propriété_deux_02_facades_sans_raccordements": {
+            "zone_residentielle": null,
+            "centre_ville": null,
+            "zone_peripherique": null,
+            "zone_eloignement": null
+          },
+          "Pleine_propriété_une_01_facade_sans_raccordements": {
+            "zone_residentielle": null,
+            "centre_ville": null,
+            "zone_peripherique": null,
+            "zone_eloignement": null
+          },
+          "Terrain_dans_l'indivision": {
+            "zone_residentielle": null,
+            "centre_ville": null,
+            "zone_peripherique": null,
+            "zone_eloignement": null
+          },
+          "Industriel": {
+            "zone_residentielle": null,
+            "centre_ville": null,
+            "zone_peripherique": null,
+            "zone_eloignement": null
+          }
+        },
+        "Terrains_agricoles_en_plaine**": {
+          "Potentialité_élevée": {
+            "zone_residentielle": null,
+            "centre_ville": null,
+            "zone_peripherique": [
+              279,
+              321
+            ],
+            "zone_eloignement": [
+              237,
+              273
+            ]
+          },
+          "Potentialité_moyenne": {
+            "zone_residentielle": null,
+            "centre_ville": null,
+            "zone_peripherique": [
+              243,
+              279
+            ],
+            "zone_eloignement": [
+              206,
+              237
+            ]
+          },
+          "Potentialité_faible": {
+            "zone_residentielle": null,
+            "centre_ville": null,
+            "zone_peripherique": [
+              211,
+              243
+            ],
+            "zone_eloignement": [
+              179,
+              206
+            ]
+          }
+        },
+        "Terrains_agricoles_en_pente_**": {
+          "Potentialité_élevée": {
+            "zone_residentielle": null,
+            "centre_ville": null,
+            "zone_peripherique": null,
+            "zone_eloignement": null
+          },
+          "Potentialité_moyenne": {
+            "zone_residentielle": null,
+            "centre_ville": null,
+            "zone_peripherique": null,
+            "zone_eloignement": null
+          },
+          "Potentialité_faible": {
+            "zone_residentielle": null,
+            "centre_ville": null,
+            "zone_peripherique": null,
+            "zone_eloignement": null
+          }
+        }
+      }
+    },
+    "Faggaret_Ezzouia_Zone_résidentielle_Centre_ville_Zone_périphérique_Zone_d'eloignement_Nature_de_l’Immeuble_Type_d’Immeuble_/Caractéristiques": {
+      "description": "",
+      "data": {
+        "Individuels*": {
+          "Standing": {
+            "zone_residentielle": null,
+            "centre_ville": [
+              187,
+              215
+            ],
+            "zone_peripherique": [
+              159,
+              183
+            ],
+            "zone_eloignement": [
+              136,
+              156
+            ]
+          },
+          "Amélioré": {
+            "zone_residentielle": null,
+            "centre_ville": [
+              156,
+              187
+            ],
+            "zone_peripherique": [
+              133,
+              159
+            ],
+            "zone_eloignement": [
+              113,
+              136
+            ]
+          },
+          "Economique": {
+            "zone_residentielle": null,
+            "centre_ville": [
+              141,
+              163
+            ],
+            "zone_peripherique": [
+              120,
+              139
+            ],
+            "zone_eloignement": [
+              102,
+              119
+            ]
+          },
+          "Précaire": {
+            "zone_residentielle": null,
+            "centre_ville": [
+              122,
+              141
+            ],
+            "zone_peripherique": [
+              104,
+              120
+            ],
+            "zone_eloignement": [
+              89,
+              102
+            ]
+          }
+        },
+        "Collectifs_et_Semi-_Collectifs*": {
+          "Standing": {
+            "zone_residentielle": null,
+            "centre_ville": [
+              163,
+              187
+            ],
+            "zone_peripherique": [
+              139,
+              159
+            ],
+            "zone_eloignement": [
+              119,
+              136
+            ]
+          },
+          "Amélioré": {
+            "zone_residentielle": null,
+            "centre_ville": [
+              141,
+              163
+            ],
+            "zone_peripherique": [
+              120,
+              139
+            ],
+            "zone_eloignement": [
+              102,
+              119
+            ]
+          },
+          "Economique": {
+            "zone_residentielle": null,
+            "centre_ville": [
+              122,
+              141
+            ],
+            "zone_peripherique": [
+              104,
+              120
+            ],
+            "zone_eloignement": [
+              89,
+              102
+            ]
+          },
+          "Précaire": {
+            "zone_residentielle": null,
+            "centre_ville": [
+              107,
+              122
+            ],
+            "zone_peripherique": [
+              91,
+              104
+            ],
+            "zone_eloignement": [
+              78,
+              89
+            ]
+          }
+        },
+        "Locaux_Commerciaux_*": {
+          "Artère_hautement_commerciale": {
+            "zone_residentielle": null,
+            "centre_ville": [
+              165,
+              190
+            ],
+            "zone_peripherique": [
+              140,
+              165
+            ],
+            "zone_eloignement": [
+              115,
+              140
+            ]
+          },
+          "Artère_moyennement_commerciale": {
+            "zone_residentielle": null,
+            "centre_ville": [
+              140,
+              160
+            ],
+            "zone_peripherique": [
+              120,
+              140
+            ],
+            "zone_eloignement": [
+              100,
+              120
+            ]
+          },
+          "Artère_peu_commerciale": {
+            "zone_residentielle": null,
+            "centre_ville": [
+              75,
+              90
+            ],
+            "zone_peripherique": [
+              60,
+              75
+            ],
+            "zone_eloignement": [
+              45,
+              60
+            ]
+          }
+        },
+        "locaux_à_usage_professionnels*": {
+          "Artere_principale": {
+            "zone_residentielle": null,
+            "centre_ville": [
+              140,
+              160
+            ],
+            "zone_peripherique": [
+              120,
+              140
+            ],
+            "zone_eloignement": [
+              100,
+              120
+            ]
+          },
+          "Artere_secondaire": {
+            "zone_residentielle": null,
+            "centre_ville": [
+              75,
+              90
+            ],
+            "zone_peripherique": [
+              60,
+              75
+            ],
+            "zone_eloignement": [
+              45,
+              60
+            ]
+          }
+        },
+        "Hangars*": {
+          "En_zone_urbaine": {
+            "zone_residentielle": null,
+            "centre_ville": null,
+            "zone_peripherique": null,
+            "zone_eloignement": null
+          },
+          "En_zone_rurale": {
+            "zone_residentielle": null,
+            "centre_ville": null,
+            "zone_peripherique": null,
+            "zone_eloignement": null
+          }
+        },
+        "Terrains_Nus*": {
+          "Pleine_propriété_deux_02_facades_avec_raccordements": {
+            "zone_residentielle": null,
+            "centre_ville": [
+              56,
+              85
+            ],
+            "zone_peripherique": [
+              48,
+              73
+            ],
+            "zone_eloignement": [
+              41,
+              62
+            ]
+          },
+          "Pleine_propriété_une_01_facade_avec_raccordements": {
+            "zone_residentielle": null,
+            "centre_ville": [
+              46,
+              73
+            ],
+            "zone_peripherique": [
+              41,
+              62
+            ],
+            "zone_eloignement": [
+              35,
+              53
+            ]
+          },
+          "Pleine_propriété_deux_02_facades_sans_raccordements": {
+            "zone_residentielle": null,
+            "centre_ville": null,
+            "zone_peripherique": null,
+            "zone_eloignement": null
+          },
+          "Pleine_propriété_une_01_facade_sans_raccordements": {
+            "zone_residentielle": null,
+            "centre_ville": null,
+            "zone_peripherique": null,
+            "zone_eloignement": null
+          },
+          "Terrain_dans_l'indivision": {
+            "zone_residentielle": null,
+            "centre_ville": null,
+            "zone_peripherique": null,
+            "zone_eloignement": null
+          },
+          "Industriel": {
+            "zone_residentielle": null,
+            "centre_ville": null,
+            "zone_peripherique": null,
+            "zone_eloignement": null
+          }
+        },
+        "Terrains_agricoles_en_plaine**": {
+          "Potentialité_élevée": {
+            "zone_residentielle": null,
+            "centre_ville": null,
+            "zone_peripherique": [
+              279,
+              321
+            ],
+            "zone_eloignement": [
+              237,
+              273
+            ]
+          },
+          "Potentialité_moyenne": {
+            "zone_residentielle": null,
+            "centre_ville": null,
+            "zone_peripherique": [
+              243,
+              279
+            ],
+            "zone_eloignement": [
+              206,
+              237
+            ]
+          },
+          "Potentialité_faible": {
+            "zone_residentielle": null,
+            "centre_ville": null,
+            "zone_peripherique": [
+              211,
+              243
+            ],
+            "zone_eloignement": [
+              179,
+              206
+            ]
+          }
+        },
+        "Terrains_agricoles_en_pente_**": {
+          "Potentialité_élevée": {
+            "zone_residentielle": null,
+            "centre_ville": null,
+            "zone_peripherique": null,
+            "zone_eloignement": null
+          },
+          "Potentialité_moyenne": {
+            "zone_residentielle": null,
+            "centre_ville": null,
+            "zone_peripherique": null,
+            "zone_eloignement": null
+          },
+          "Potentialité_faible": {
+            "zone_residentielle": null,
+            "centre_ville": null,
+            "zone_peripherique": null,
+            "zone_eloignement": null
+          }
+        }
+      }
+    },
+    "in_ghar_Zone_résidentielle_Centre_ville_Zone_périphérique_Zone_d'eloignement_Nature_de_l’Immeuble_Type_d’Immeuble_/Caractéristiques": {
+      "description": "",
+      "data": {
+        "Individuels*": {
+          "Standing": {
+            "zone_residentielle": null,
+            "centre_ville": [
+              187,
+              215
+            ],
+            "zone_peripherique": [
+              159,
+              183
+            ],
+            "zone_eloignement": [
+              136,
+              156
+            ]
+          },
+          "Amélioré": {
+            "zone_residentielle": null,
+            "centre_ville": [
+              156,
+              187
+            ],
+            "zone_peripherique": [
+              133,
+              159
+            ],
+            "zone_eloignement": [
+              113,
+              136
+            ]
+          },
+          "Economique": {
+            "zone_residentielle": null,
+            "centre_ville": [
+              141,
+              163
+            ],
+            "zone_peripherique": [
+              120,
+              139
+            ],
+            "zone_eloignement": [
+              102,
+              119
+            ]
+          },
+          "Précaire": {
+            "zone_residentielle": null,
+            "centre_ville": [
+              122,
+              141
+            ],
+            "zone_peripherique": [
+              104,
+              120
+            ],
+            "zone_eloignement": [
+              89,
+              102
+            ]
+          }
+        },
+        "Collectifs_et_Semi-_Collectifs*": {
+          "Standing": {
+            "zone_residentielle": null,
+            "centre_ville": [
+              163,
+              187
+            ],
+            "zone_peripherique": [
+              139,
+              159
+            ],
+            "zone_eloignement": [
+              119,
+              136
+            ]
+          },
+          "Amélioré": {
+            "zone_residentielle": null,
+            "centre_ville": [
+              141,
+              163
+            ],
+            "zone_peripherique": [
+              120,
+              139
+            ],
+            "zone_eloignement": [
+              102,
+              119
+            ]
+          },
+          "Economique": {
+            "zone_residentielle": null,
+            "centre_ville": [
+              122,
+              141
+            ],
+            "zone_peripherique": [
+              104,
+              120
+            ],
+            "zone_eloignement": [
+              89,
+              102
+            ]
+          },
+          "Précaire": {
+            "zone_residentielle": null,
+            "centre_ville": [
+              107,
+              122
+            ],
+            "zone_peripherique": [
+              91,
+              104
+            ],
+            "zone_eloignement": [
+              78,
+              89
+            ]
+          }
+        },
+        "Locaux_Commerciaux_*": {
+          "Artère_hautement_commerciale": {
+            "zone_residentielle": null,
+            "centre_ville": [
+              165,
+              190
+            ],
+            "zone_peripherique": [
+              140,
+              165
+            ],
+            "zone_eloignement": [
+              115,
+              140
+            ]
+          },
+          "Artère_moyennement_commerciale": {
+            "zone_residentielle": null,
+            "centre_ville": [
+              140,
+              160
+            ],
+            "zone_peripherique": [
+              120,
+              140
+            ],
+            "zone_eloignement": [
+              100,
+              120
+            ]
+          },
+          "Artère_peu_commerciale": {
+            "zone_residentielle": null,
+            "centre_ville": [
+              75,
+              90
+            ],
+            "zone_peripherique": [
+              60,
+              75
+            ],
+            "zone_eloignement": [
+              45,
+              60
+            ]
+          }
+        },
+        "locaux_à_usage_professionnels*": {
+          "Artere_principale": {
+            "zone_residentielle": null,
+            "centre_ville": [
+              140,
+              160
+            ],
+            "zone_peripherique": [
+              120,
+              140
+            ],
+            "zone_eloignement": [
+              100,
+              120
+            ]
+          },
+          "Artere_secondaire": {
+            "zone_residentielle": null,
+            "centre_ville": [
+              75,
+              90
+            ],
+            "zone_peripherique": [
+              60,
+              75
+            ],
+            "zone_eloignement": [
+              45,
+              60
+            ]
+          }
+        },
+        "Hangars*": {
+          "En_zone_urbaine": {
+            "zone_residentielle": null,
+            "centre_ville": null,
+            "zone_peripherique": null,
+            "zone_eloignement": null
+          },
+          "En_zone_rurale": {
+            "zone_residentielle": null,
+            "centre_ville": null,
+            "zone_peripherique": null,
+            "zone_eloignement": null
+          }
+        },
+        "Terrains_Nus*": {
+          "Pleine_propriété_deux_02_facades_avec_raccordements": {
+            "zone_residentielle": null,
+            "centre_ville": [
+              56,
+              85
+            ],
+            "zone_peripherique": [
+              48,
+              73
+            ],
+            "zone_eloignement": [
+              41,
+              62
+            ]
+          },
+          "Pleine_propriété_une_01_facade_avec_raccordements": {
+            "zone_residentielle": null,
+            "centre_ville": [
+              46,
+              73
+            ],
+            "zone_peripherique": [
+              41,
+              62
+            ],
+            "zone_eloignement": [
+              35,
+              53
+            ]
+          },
+          "Pleine_propriété_deux_02_facades_sans_raccordements": {
+            "zone_residentielle": null,
+            "centre_ville": null,
+            "zone_peripherique": null,
+            "zone_eloignement": null
+          },
+          "Pleine_propriété_une_01_facade_sans_raccordements": {
+            "zone_residentielle": null,
+            "centre_ville": null,
+            "zone_peripherique": null,
+            "zone_eloignement": null
+          },
+          "Terrain_dans_l'indivision": {
+            "zone_residentielle": null,
+            "centre_ville": null,
+            "zone_peripherique": null,
+            "zone_eloignement": null
+          },
+          "Industriel": {
+            "zone_residentielle": null,
+            "centre_ville": null,
+            "zone_peripherique": null,
+            "zone_eloignement": null
+          }
+        },
+        "Terrains_agricoles_en_plaine**": {
+          "Potentialité_élevée": {
+            "zone_residentielle": null,
+            "centre_ville": null,
+            "zone_peripherique": [
+              279,
+              321
+            ],
+            "zone_eloignement": [
+              237,
+              273
+            ]
+          },
+          "Potentialité_moyenne": {
+            "zone_residentielle": null,
+            "centre_ville": null,
+            "zone_peripherique": [
+              243,
+              279
+            ],
+            "zone_eloignement": [
+              206,
+              237
+            ]
+          },
+          "Potentialité_faible": {
+            "zone_residentielle": null,
+            "centre_ville": null,
+            "zone_peripherique": [
+              211,
+              243
+            ],
+            "zone_eloignement": [
+              179,
+              206
+            ]
+          }
+        },
+        "Terrains_agricoles_en_pente_**": {
+          "Potentialité_élevée": {
+            "zone_residentielle": null,
+            "centre_ville": null,
+            "zone_peripherique": null,
+            "zone_eloignement": null
+          },
+          "Potentialité_moyenne": {
+            "zone_residentielle": null,
+            "centre_ville": null,
+            "zone_peripherique": null,
+            "zone_eloignement": null
+          },
+          "Potentialité_faible": {
+            "zone_residentielle": null,
+            "centre_ville": null,
+            "zone_peripherique": null,
+            "zone_eloignement": null
+          }
+        }
+      }
+    }
+  }
+}

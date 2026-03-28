@@ -159,7 +159,48 @@
     const oranCoords = {};
     for (const [k, v] of Object.entries(_raw)) oranCoords[k.toUpperCase()] = v;
 
-    let currentWilaya = 'oran';
+const relizaneCoords = {
+        "RELIZANE": [35.7373, 0.5559],
+        "OUED_RHIOU": [35.9612, 0.9168],
+        "BENI_ZENTIS": [36.0028, 0.7709],
+        "BELAASEL_BOUZEGZA": [35.8118, 0.5471],
+        "BENI_DORGUOUN": [35.757, 1.0118],
+        "EL_KALAA": [35.5802, 0.3236],
+        "LEHLAF": [35.866, 0.924],
+        "MEDIOUNA": [36.0335, 0.8245],
+        "MENDES": [35.4859, 0.8122],
+        "MERDJA_SIDI_ABED": [35.9526, 0.8659],
+        "OUARIZANE": [36.0401, 0.9329],
+        "OUED_ESSALAM": [35.5921, 0.8752],
+        "OULED_YAICH": [35.9554, 1.0429],
+        "OULED_SIDI_MIHOUB": [36.0383, 0.651],
+        "REMKA": [35.8504, 1.0362],
+        "DAR_BENABDELLAH": [35.6812, 0.6559],
+        "EL_GUETTAR": [36.0592, 0.7607],
+        "EL_HASSI": [35.8817, 0.995],
+        "EL_OULDJA": [35.829, 1.1355],
+        "HAD_CHEKALA": [35.808, 0.9918],
+        "HAMRI": [35.9188, 0.6123],
+        "SIDI_MHAMED_BENAOUDA": [35.6112, 0.5304],
+        "SIDI_SAADA": [35.7145, 0.1709],
+        "SOUK_EL_HAD": [35.9084, 1.0826],
+        "SIDI_KHATTAB": [35.8545, 0.6054],
+        "SIDI_LAZREG": [35.4987, 0.702],
+        "AIN_EL_RAHMA": [35.5343, 0.3557],
+        "AIN_TARIK": [35.7762, 1.0532],
+        "MAZOUNA": [36.1241, 0.8745],
+        "AMMI_MOUSSA": [35.8696, 1.1159],
+        "DJIDIOUIA": [35.932, 0.8307],
+        "EL_MATMAR": [35.738, 0.4637],
+        "YELLEL": [35.7234, 0.3443],
+        "ZEMMOURA": [35.6134, 0.7512],
+        "EL_HMADNA": [35.8829, 0.7662],
+        "SIDI_MHAMED_BENALI": [36.1137, 0.824],
+        "OUED_EL_DJEMAA": [35.8165, 0.6909],
+        "BENDAOUD": [35.688, 0.5059],
+    };
+
+    (    let currentWilaya = .oran.;)
     let currentTransaction = 'sale';
     let map;
     let markers = {};
@@ -175,25 +216,20 @@
     function showMap(show) {
         const mapDiv = document.getElementById('mapContainer');
         const noMapDiv = document.getElementById('noMapMessage');
-        if (show && currentWilaya === 'oran') {
-            mapDiv.style.display = 'block';
-            noMapDiv.style.display = 'none';
-            if (!map) initMap();
-            else map.invalidateSize();
-        } else {
-            mapDiv.style.display = 'none';
-            noMapDiv.style.display = 'block';
-        }
+        mapDiv.style.display = 'block';
+        noMapDiv.style.display = 'none';
+        if (!map) initMap();
+        else map.invalidateSize();
     }
 
     async function updateMarkers() {
         for (let key in markers) map.removeLayer(markers[key]);
         markers = {};
-        if (currentWilaya !== 'oran') return;
+        const coordsMap = currentWilaya === 'oran' ? oranCoords : relizaneCoords;
         const response = await fetch(`/api/communes?wilaya=${currentWilaya}&transaction_type=${currentTransaction}`);
         const communes = await response.json();
         for (let commune of communes) {
-            const coords = oranCoords[commune.toUpperCase()];
+            const coords = coordsMap[commune];
             if (coords) {
                 const marker = L.marker(coords).addTo(map);
                 marker.bindPopup(`
@@ -209,7 +245,9 @@
                     map.setView(coords, 12);
                 });
                 markers[commune] = marker;
-            } else { console.warn("No coords for: " + commune); }
+            } else {
+                console.warn("No coords for: " + commune);
+            }
         }
     }
 
@@ -388,7 +426,8 @@
         document.getElementById('result').style.display = 'none';
         document.getElementById('debugResult').style.display = 'none';
         document.getElementById('communeDescription').style.display = 'none';
-        showMap(currentWilaya === 'oran');
+        showMap(true);
+        if (currentWilaya === "oran") map.setView([35.7, -0.6], 10); else map.setView([35.9, 0.8], 9);
         if (currentWilaya === 'oran') {
             if (map) map.invalidateSize();
             else initMap();

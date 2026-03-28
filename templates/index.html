@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barème immobilier - Wilaya d'Oran / Relizane</title>
+    <title>Barème immobilier - Oran & Relizane</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="manifest" href="/static/manifest.json">
@@ -39,9 +39,8 @@
 
         <div id="mapContainer">
             <div id="map"></div>
-            <p class="text-muted small mt-2" id="mapInstruction">Cliquez sur un marqueur pour sélectionner la commune</p>
+            <p class="text-muted small mt-2">Cliquez sur un marqueur pour sélectionner la commune</p>
         </div>
-        <div id="noMapMessage" style="display:none;" class="alert alert-info">La carte n'est pas disponible pour cette wilaya pour le moment.</div>
 
         <form id="estimationForm">
             <div class="mb-3">
@@ -113,14 +112,14 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    // Helper: format label (uppercase)
+    // Helper: format label (uppercase, underscores to spaces)
     function formatLabel(str) {
         if (!str) return '';
         return str.replace(/_/g, ' ').toUpperCase();
     }
 
-    // Oran coordinates (for sale commune names)
-    const baseCoords = {
+    // ---------- Oran coordinates ----------
+    const oranCoords = {
         "ORAN_PARTIE_EST": [35.7067, -0.6120],
         "ORAN_PARTIE_OUEST_ET_SUD": [35.6890, -0.6558],
         "BIR_EL_DJIR": [35.719874, -0.567512],
@@ -147,87 +146,83 @@
         "OUED_TLELAT": [35.551924, -0.45226],
         "EL_BRAYA": [35.629146, -0.519191],
         "BOUFATIS": [35.679141, -0.411768],
-        "TAFRAOUI": [35.483073, -0.526979]
+        "TAFRAOUI": [35.483073, -0.526979],
+        "HASSI_BEN_OKBA": [35.72617, -0.46585],
+        "BENFREHA": [35.69366, -0.41873],
+        "MERS_EL_HADJADJ": [35.794885, -0.165213],
+        "SIDI_BENYEBKA": [35.829287, -0.393432]
     };
-    const aliasCoords = {
-        "HASSI_BEN_OKBA": baseCoords["HASSI_BENOKBA"],
-        "BENFREHA": baseCoords["BENFRAHA"],
-        "MERS_EL_HADJADJ": baseCoords["MERS_ELHADJADJ"],
-        "SIDI_BENYEBKA": baseCoords["SIDI_BENYABKA"]
-    };
-    const _raw = { ...baseCoords, ...aliasCoords };
-    const oranCoords = {};
-    for (const [k, v] of Object.entries(_raw)) oranCoords[k.toUpperCase()] = v;
 
-const relizaneCoords = {
+    // ---------- Relizane coordinates ----------
+    const relizaneCoords = {
         "RELIZANE": [35.7373, 0.5559],
         "OUED_RHIOU": [35.9612, 0.9168],
         "BENI_ZENTIS": [36.0028, 0.7709],
         "BELAASEL_BOUZEGZA": [35.8118, 0.5471],
-        "BENI_DORGUOUN": [35.757, 1.0118],
+        "BENI_DORGUOUN": [35.7570, 1.0118],
         "EL_KALAA": [35.5802, 0.3236],
-        "LEHLAF": [35.866, 0.924],
+        "LEHLAF": [35.8660, 0.9240],
         "MEDIOUNA": [36.0335, 0.8245],
         "MENDES": [35.4859, 0.8122],
         "MERDJA_SIDI_ABED": [35.9526, 0.8659],
         "OUARIZANE": [36.0401, 0.9329],
         "OUED_ESSALAM": [35.5921, 0.8752],
         "OULED_YAICH": [35.9554, 1.0429],
-        "OULED_SIDI_MIHOUB": [36.0383, 0.651],
+        "OULED_SIDI_MIHOUB": [36.0383, 0.6510],
         "REMKA": [35.8504, 1.0362],
         "DAR_BENABDELLAH": [35.6812, 0.6559],
         "EL_GUETTAR": [36.0592, 0.7607],
-        "EL_HASSI": [35.8817, 0.995],
-        "EL_OULDJA": [35.829, 1.1355],
-        "HAD_CHEKALA": [35.808, 0.9918],
+        "EL_HASSI": [35.8817, 0.9950],
+        "EL_OULDJA": [35.8290, 1.1355],
+        "HAD_CHEKALA": [35.8080, 0.9918],
         "HAMRI": [35.9188, 0.6123],
         "SIDI_MHAMED_BENAOUDA": [35.6112, 0.5304],
         "SIDI_SAADA": [35.7145, 0.1709],
         "SOUK_EL_HAD": [35.9084, 1.0826],
         "SIDI_KHATTAB": [35.8545, 0.6054],
-        "SIDI_LAZREG": [35.4987, 0.702],
+        "SIDI_LAZREG": [35.4987, 0.7020],
         "AIN_EL_RAHMA": [35.5343, 0.3557],
         "AIN_TARIK": [35.7762, 1.0532],
         "MAZOUNA": [36.1241, 0.8745],
         "AMMI_MOUSSA": [35.8696, 1.1159],
-        "DJIDIOUIA": [35.932, 0.8307],
-        "EL_MATMAR": [35.738, 0.4637],
+        "DJIDIOUIA": [35.9320, 0.8307],
+        "EL_MATMAR": [35.7380, 0.4637],
         "YELLEL": [35.7234, 0.3443],
         "ZEMMOURA": [35.6134, 0.7512],
         "EL_HMADNA": [35.8829, 0.7662],
-        "SIDI_MHAMED_BENALI": [36.1137, 0.824],
+        "SIDI_MHAMED_BENALI": [36.1137, 0.8240],
         "OUED_EL_DJEMAA": [35.8165, 0.6909],
-        "BENDAOUD": [35.688, 0.5059],
+        "BENDAOUD": [35.6880, 0.5059]
     };
 
-    (    let currentWilaya = .oran.;)
+    let currentWilaya = 'oran';
     let currentTransaction = 'sale';
     let map;
     let markers = {};
 
+    // Initialize the map with appropriate view for the current wilaya
     function initMap() {
         if (map) return;
-        map = L.map('map').setView([35.7, -0.6], 10);
+        const center = currentWilaya === 'oran' ? [35.7, -0.6] : [35.9, 0.8];
+        const zoom = currentWilaya === 'oran' ? 10 : 9;
+        map = L.map('map').setView(center, zoom);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
     }
 
-    function showMap(show) {
-        const mapDiv = document.getElementById('mapContainer');
-        const noMapDiv = document.getElementById('noMapMessage');
-        mapDiv.style.display = 'block';
-        noMapDiv.style.display = 'none';
-        if (!map) initMap();
-        else map.invalidateSize();
-    }
-
+    // Update map markers based on current wilaya and transaction type
     async function updateMarkers() {
+        // Clear existing markers
         for (let key in markers) map.removeLayer(markers[key]);
         markers = {};
+
+        // Select coordinate set based on wilaya
         const coordsMap = currentWilaya === 'oran' ? oranCoords : relizaneCoords;
+
         const response = await fetch(`/api/communes?wilaya=${currentWilaya}&transaction_type=${currentTransaction}`);
         const communes = await response.json();
+
         for (let commune of communes) {
             const coords = coordsMap[commune];
             if (coords) {
@@ -246,17 +241,19 @@ const relizaneCoords = {
                 });
                 markers[commune] = marker;
             } else {
-                console.warn("No coords for: " + commune);
+                console.warn("No coordinates for: " + commune);
             }
         }
     }
 
+    // Load communes dropdown
     async function loadCommunes() {
         const response = await fetch(`/api/communes?wilaya=${currentWilaya}&transaction_type=${currentTransaction}`);
         const communes = await response.json();
         const select = document.getElementById('commune');
         select.innerHTML = '<option value="">Sélectionnez une commune</option>' +
             communes.map(c => `<option value="${c}">${formatLabel(c)}</option>`).join('');
+        // Reset dependent fields
         document.getElementById('propertyType').innerHTML = '<option value="">Sélectionnez d\'abord une commune</option>';
         document.getElementById('propertyType').disabled = true;
         document.getElementById('category').innerHTML = '<option value="">Sélectionnez d\'abord un type</option>';
@@ -269,6 +266,7 @@ const relizaneCoords = {
         await updateMarkers();
     }
 
+    // Load commune description
     async function loadCommuneDescription() {
         const commune = document.getElementById('commune').value;
         if (!commune) {
@@ -365,6 +363,7 @@ const relizaneCoords = {
         }
     }
 
+    // Submit handler
     document.getElementById('estimationForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const data = {
@@ -413,6 +412,7 @@ const relizaneCoords = {
         }
     });
 
+    // Wilaya change handler
     document.getElementById('wilaya').addEventListener('change', async (e) => {
         currentWilaya = e.target.value;
         // Reset form
@@ -426,20 +426,24 @@ const relizaneCoords = {
         document.getElementById('result').style.display = 'none';
         document.getElementById('debugResult').style.display = 'none';
         document.getElementById('communeDescription').style.display = 'none';
-        showMap(true);
-        if (currentWilaya === "oran") map.setView([35.7, -0.6], 10); else map.setView([35.9, 0.8], 9);
+        // Adjust map view
+        if (!map) initMap();
         if (currentWilaya === 'oran') {
-            if (map) map.invalidateSize();
-            else initMap();
+            map.setView([35.7, -0.6], 10);
+        } else {
+            map.setView([35.9, 0.8], 9);
         }
+        // Reload data
         await loadCommunes();
     });
+
     document.getElementById('commune').addEventListener('change', () => {
         loadPropertyTypes();
         loadCommuneDescription();
         const commune = document.getElementById('commune').value;
-        if (currentWilaya === 'oran' && commune && oranCoords[commune.toUpperCase()]) {
-            map.setView(oranCoords[commune.toUpperCase()], 12);
+        const coordsMap = currentWilaya === 'oran' ? oranCoords : relizaneCoords;
+        if (commune && coordsMap[commune]) {
+            map.setView(coordsMap[commune], 12);
         }
     });
     document.getElementById('propertyType').addEventListener('change', () => {
@@ -455,7 +459,6 @@ const relizaneCoords = {
     document.getElementById('debugBtn').addEventListener('click', fetchDebugData);
 
     // Initial load
-    showMap(true);
     initMap();
     loadCommunes();
 </script>
